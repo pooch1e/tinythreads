@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Alert } from 'react-native';
 import * as ImageManipulator from 'expo-image-manipulator';
-import { v4 as uuidv4 } from 'uuid';
+import * as Crypto from 'expo-crypto';
 import { BabySize, ClothingColour, ClothingItem, ClothingType } from '../types';
 import { loadItems, saveItem, deleteItem as deleteItemFromStorage } from '../storage';
 import { saveImage, deleteImage } from '../storage/images';
@@ -38,7 +38,9 @@ export function useWardrobe() {
     ): Promise<ClothingItem | null> => {
       setIsAdding(true);
       try {
-        const id = uuidv4();
+        console.log('[addItem] start', { type, sourceUri });
+        const id = Crypto.randomUUID();
+        console.log('[addItem] generated id', id);
 
         // Always compress/resize to ~1024px first
         const compressed = await ImageManipulator.manipulateAsync(
@@ -46,25 +48,31 @@ export function useWardrobe() {
           [{ resize: { width: 1024 } }],
           { compress: 0.7, format: ImageManipulator.SaveFormat.JPEG },
         );
+        console.log('[addItem] compressed', compressed.uri);
 
         let finalUri: string;
         let backgroundRemoved = false;
 
         if (modelStatus.status === 'ready') {
+          console.log('[addItem] model ready — attempting background removal');
           try {
             // Attempt ONNX background removal
             const outputPath = `${compressed.uri.replace(/\.jpg$/, '')}_masked.png`;
             await removeBackground(compressed.uri, outputPath);
+            console.log('[addItem] background removal succeeded', outputPath);
             finalUri = await saveImage(outputPath, id, true);
             backgroundRemoved = true;
-          } catch {
+          } catch (bgErr) {
+            console.warn('[addItem] background removal failed, falling back', bgErr);
             // Fallback: save original compressed image
             finalUri = await saveImage(compressed.uri, id, false);
           }
         } else {
+          console.log('[addItem] model not ready (status=' + modelStatus.status + ') — saving original');
           // Model not ready — save original
           finalUri = await saveImage(compressed.uri, id, false);
         }
+        console.log('[addItem] image saved', finalUri);
 
         const item: ClothingItem = {
           id,
@@ -77,9 +85,11 @@ export function useWardrobe() {
         };
 
         await saveItem(item);
+        console.log('[addItem] item saved to storage', item.id);
         setItems((prev) => [item, ...prev]);
         return item;
       } catch (err) {
+        console.error('[addItem] outer catch — failed to save item', err);
         Alert.alert('Error', 'Failed to save item. Please try again.');
         return null;
       } finally {

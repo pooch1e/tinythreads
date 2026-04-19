@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -17,12 +17,18 @@ import OutfitSlot from '../../src/components/OutfitSlot';
 import EmptyState from '../../src/components/EmptyState';
 import { CLOTHING_TYPES } from '../../src/constants/clothing';
 import { ClothingType, MAX_LOOKS } from '../../src/types';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 
 export default function BuilderScreen() {
   const router = useRouter();
-  const { items } = useWardrobe();
+  const { items, refresh } = useWardrobe();
   const { addLook, atLimit, looks } = useLooks();
+
+  useFocusEffect(
+    useCallback(() => {
+      refresh();
+    }, [refresh]),
+  );
 
   const [selectedIndices, setSelectedIndices] = useState<Record<ClothingType, number>>({
     hat: 0,

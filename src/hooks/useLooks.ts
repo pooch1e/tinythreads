@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { SavedLook, MAX_LOOKS } from '../types';
 import { loadLooks, saveLook, deleteLook as deleteLookFromStorage } from '../storage';
-import { v4 as uuidv4 } from 'uuid';
+import * as Crypto from 'expo-crypto';
 
 export function useLooks() {
   const [looks, setLooks] = useState<SavedLook[]>([]);
@@ -26,7 +26,7 @@ export function useLooks() {
     async (name: string, itemIds: SavedLook['itemIds']): Promise<SavedLook | null> => {
       if (looks.length >= MAX_LOOKS) return null;
       const look: SavedLook = {
-        id: uuidv4(),
+        id: Crypto.randomUUID(),
         name: name.trim() || 'Untitled Look',
         itemIds,
         createdAt: Date.now(),

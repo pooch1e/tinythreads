@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import {
   View,
   FlatList,
@@ -6,7 +6,7 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { useLooks } from '../../src/hooks/useLooks';
 import { useWardrobe } from '../../src/hooks/useWardrobe';
 import LookCard from '../../src/components/LookCard';
@@ -15,8 +15,15 @@ import { MAX_LOOKS } from '../../src/types';
 
 export default function LooksScreen() {
   const router = useRouter();
-  const { looks, isLoading, deleteLook } = useLooks();
-  const { items } = useWardrobe();
+  const { looks, isLoading, deleteLook, refresh: refreshLooks } = useLooks();
+  const { items, refresh: refreshItems } = useWardrobe();
+
+  useFocusEffect(
+    useCallback(() => {
+      refreshLooks();
+      refreshItems();
+    }, [refreshLooks, refreshItems]),
+  );
 
   const confirmDelete = (id: string, name: string) => {
     Alert.alert(`Delete "${name}"?`, 'This look will be permanently removed.', [

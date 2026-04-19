@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   View,
   Text,
@@ -31,33 +31,37 @@ export default function OutfitSlot({ type, items, selectedIndex, onIndexChange }
   const config = CLOTHING_CONFIG[type];
   const translateX = useSharedValue(0);
 
+  // Keep shared values in sync with props so gesture worklet always has current values
+  const selectedIndexSV = useSharedValue(selectedIndex);
+  const itemsLengthSV = useSharedValue(items.length);
+
+  useEffect(() => {
+    selectedIndexSV.value = selectedIndex;
+  }, [selectedIndex]);
+
+  useEffect(() => {
+    itemsLengthSV.value = items.length;
+  }, [items.length]);
+
   const triggerHaptic = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-  };
-
-  const next = () => {
-    const nextIndex = (selectedIndex + 1) % items.length;
-    runOnJS(onIndexChange)(nextIndex);
-    runOnJS(triggerHaptic)();
-  };
-
-  const prev = () => {
-    const prevIndex = (selectedIndex - 1 + items.length) % items.length;
-    runOnJS(onIndexChange)(prevIndex);
-    runOnJS(triggerHaptic)();
   };
 
   const gesture = Gesture.Pan()
     .activeOffsetX([-10, 10])
     .failOffsetY([-15, 15])
     .onUpdate((e) => {
-      translateX.value = e.translationX * 0.4; // Slight drag feel
+      translateX.value = e.translationX * 0.4;
     })
     .onEnd((e) => {
-      if (e.translationX < -SWIPE_THRESHOLD && items.length > 1) {
-        runOnJS(next)();
-      } else if (e.translationX > SWIPE_THRESHOLD && items.length > 1) {
-        runOnJS(prev)();
+      const len = itemsLengthSV.value;
+      const idx = selectedIndexSV.value;
+      if (e.translationX < -SWIPE_THRESHOLD && len > 1) {
+        runOnJS(onIndexChange)((idx + 1) % len);
+        runOnJS(triggerHaptic)();
+      } else if (e.translationX > SWIPE_THRESHOLD && len > 1) {
+        runOnJS(onIndexChange)((idx - 1 + len) % len);
+        runOnJS(triggerHaptic)();
       }
       translateX.value = withSpring(0, { damping: 20, stiffness: 200 });
     });

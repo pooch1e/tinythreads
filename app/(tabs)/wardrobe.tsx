@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -7,7 +7,7 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { useWardrobe } from '../../src/hooks/useWardrobe';
 import ClothingCard from '../../src/components/ClothingCard';
 import EmptyState from '../../src/components/EmptyState';
@@ -17,9 +17,15 @@ import { ClothingColour, ClothingItem, BabySize } from '../../src/types';
 
 export default function WardrobeScreen() {
   const router = useRouter();
-  const { items, isLoading, deleteItem } = useWardrobe();
+  const { items, isLoading, deleteItem, refresh } = useWardrobe();
   const [activeSize, setActiveSize] = useState<BabySize | null>(null);
   const [activeColour, setActiveColour] = useState<ClothingColour | null>(null);
+
+  useFocusEffect(
+    useCallback(() => {
+      refresh();
+    }, [refresh]),
+  );
 
   const filteredItems = useMemo(() => {
     return items
