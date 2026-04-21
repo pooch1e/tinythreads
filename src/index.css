@@ -26,6 +26,16 @@ html, body, #root {
   -webkit-overflow-scrolling: touch;
 }
 
+/* ── Utilities ───────────────────────────────────────────── */
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 /* ── Bottom navigation ────────────────────────────────────── */
 
 .bottom-nav {
