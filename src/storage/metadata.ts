@@ -3,52 +3,39 @@ import type { ClothingItem, SavedLook } from '../types';
 const ITEMS_KEY = '@tinythreads/items';
 const LOOKS_KEY = '@tinythreads/looks';
 
-// --- Items ---
+// ── Generic localStorage helpers ─────────────────────────────
 
-export function loadItems(): ClothingItem[] {
+function loadFromStorage<T>(key: string): T[] {
   try {
-    const raw = localStorage.getItem(ITEMS_KEY);
-    return raw ? (JSON.parse(raw) as ClothingItem[]) : [];
+    const raw = localStorage.getItem(key);
+    return raw ? (JSON.parse(raw) as T[]) : [];
   } catch {
     return [];
   }
 }
 
-export function saveItems(items: ClothingItem[]): void {
+function addToStorage<T>(key: string, item: T): void {
+  const items = loadFromStorage<T>(key);
+  localStorage.setItem(key, JSON.stringify([item, ...items]));
+}
+
+function removeFromStorage(key: string, id: string): void {
+  const items = loadFromStorage<{ id: string }>(key).filter((i) => i.id !== id);
+  localStorage.setItem(key, JSON.stringify(items));
+}
+
+// ── Items ─────────────────────────────────────────────────────
+
+export const loadItems = () => loadFromStorage<ClothingItem>(ITEMS_KEY);
+export const saveItems = (items: ClothingItem[]) =>
   localStorage.setItem(ITEMS_KEY, JSON.stringify(items));
-}
+export const addItemToStorage = (item: ClothingItem) => addToStorage<ClothingItem>(ITEMS_KEY, item);
+export const removeItemFromStorage = (id: string) => removeFromStorage(ITEMS_KEY, id);
 
-export function addItemToStorage(item: ClothingItem): void {
-  const items = loadItems();
-  saveItems([item, ...items]);
-}
+// ── Looks ─────────────────────────────────────────────────────
 
-export function removeItemFromStorage(id: string): void {
-  const items = loadItems().filter((i) => i.id !== id);
-  saveItems(items);
-}
-
-// --- Looks ---
-
-export function loadLooks(): SavedLook[] {
-  try {
-    const raw = localStorage.getItem(LOOKS_KEY);
-    return raw ? (JSON.parse(raw) as SavedLook[]) : [];
-  } catch {
-    return [];
-  }
-}
-
-export function saveLooks(looks: SavedLook[]): void {
+export const loadLooks = () => loadFromStorage<SavedLook>(LOOKS_KEY);
+export const saveLooks = (looks: SavedLook[]) =>
   localStorage.setItem(LOOKS_KEY, JSON.stringify(looks));
-}
-
-export function addLookToStorage(look: SavedLook): void {
-  const looks = loadLooks();
-  saveLooks([look, ...looks]);
-}
-
-export function removeLookFromStorage(id: string): void {
-  const looks = loadLooks().filter((l) => l.id !== id);
-  saveLooks(looks);
-}
+export const addLookToStorage = (look: SavedLook) => addToStorage<SavedLook>(LOOKS_KEY, look);
+export const removeLookFromStorage = (id: string) => removeFromStorage(LOOKS_KEY, id);

@@ -31,4 +31,3 @@ export interface SavedLook {
   createdAt: number;
 }
 
-export const MAX_LOOKS = 10;

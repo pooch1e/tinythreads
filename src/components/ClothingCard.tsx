@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
 import type { ClothingItem } from '@/types';
-import { getImageUrl } from '@/storage/images';
+import { useSingleImage } from '@/hooks/useSingleImage';
+import ItemTags from '@/components/ItemTags';
 
 interface ClothingCardProps {
   item: ClothingItem;
@@ -8,21 +8,7 @@ interface ClothingCardProps {
 }
 
 export default function ClothingCard({ item, onDelete }: ClothingCardProps) {
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
-
-  useEffect(() => {
-    let objectUrl: string | null = null;
-
-    getImageUrl(item.imageId).then((url) => {
-      objectUrl = url;
-      setImageUrl(url);
-    });
-
-    return () => {
-      // Revoke the object URL when component unmounts to avoid memory leaks
-      if (objectUrl) URL.revokeObjectURL(objectUrl);
-    };
-  }, [item.imageId]);
+  const imageUrl = useSingleImage(item.imageId);
 
   return (
     <div className="relative flex-shrink-0 w-[100px]">
@@ -53,22 +39,7 @@ export default function ClothingCard({ item, onDelete }: ClothingCardProps) {
 
       {/* Tags */}
       <div className="mt-1.5 flex flex-wrap gap-1">
-        {item.size && (
-          <span className="text-[10px] font-medium bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded-full leading-none">
-            {item.size}
-          </span>
-        )}
-        {item.colour && (
-          <span
-            className="inline-flex items-center gap-1 text-[10px] font-medium bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded-full leading-none"
-          >
-            <span
-              className="w-2 h-2 rounded-full flex-shrink-0 border border-gray-200"
-              style={{ backgroundColor: item.colour.hex }}
-            />
-            {item.colour.name}
-          </span>
-        )}
+        <ItemTags item={item} />
       </div>
     </div>
   );

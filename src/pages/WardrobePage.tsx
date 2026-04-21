@@ -6,52 +6,8 @@ import type { BabySize, ClothingColour, ClothingItem } from '@/types';
 import ClothingCard from '@/components/ClothingCard';
 import FilterBar from '@/components/FilterBar';
 import EmptyState from '@/components/EmptyState';
-
-// ── Confirmation dialog ──────────────────────────────────────
-
-interface ConfirmDeleteProps {
-  item: ClothingItem;
-  onConfirm: () => void;
-  onCancel: () => void;
-}
-
-function ConfirmDeleteDialog({ item, onConfirm, onCancel }: ConfirmDeleteProps) {
-  const cfg = CLOTHING_CONFIG[item.type];
-  return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center" onClick={onCancel}>
-      {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/40" />
-      {/* Sheet */}
-      <div
-        className="relative w-full max-w-[430px] bg-white rounded-t-3xl px-5 py-6 space-y-4"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h3 className="text-base font-semibold text-gray-800 text-center">
-          Delete {cfg.displayName}?
-        </h3>
-        <p className="text-sm text-gray-500 text-center">
-          This item will be permanently removed from your wardrobe and any saved outfits that include it.
-        </p>
-        <div className="flex flex-col gap-2 pt-1">
-          <button
-            onClick={onConfirm}
-            className="w-full py-3.5 bg-red-500 text-white rounded-2xl font-semibold text-sm active:bg-red-600 active:scale-95 transition-all"
-          >
-            Delete
-          </button>
-          <button
-            onClick={onCancel}
-            className="w-full py-3.5 bg-gray-100 text-gray-700 rounded-2xl font-semibold text-sm active:bg-gray-200 active:scale-95 transition-all"
-          >
-            Cancel
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ── Main page ────────────────────────────────────────────────
+import ConfirmDeleteSheet from '@/components/ConfirmDeleteSheet';
+import { groupItemsByType } from '@/utils/clothing';
 
 export default function WardrobePage() {
   const navigate = useNavigate();
@@ -72,10 +28,11 @@ export default function WardrobePage() {
 
   // Sections: only show types that have at least one item (filtered or unfiltered)
   const sections = useMemo(() => {
+    const byType = groupItemsByType(filteredItems);
     return CLOTHING_TYPES.map((type) => ({
       type,
       cfg: CLOTHING_CONFIG[type],
-      items: filteredItems.filter((i) => i.type === type),
+      items: byType[type],
       totalCount: items.filter((i) => i.type === type).length,
     })).filter((s) => s.totalCount > 0);
   }, [filteredItems, items]);
@@ -178,8 +135,9 @@ export default function WardrobePage() {
 
       {/* Delete confirmation sheet */}
       {pendingDelete && (
-        <ConfirmDeleteDialog
-          item={pendingDelete}
+        <ConfirmDeleteSheet
+          title={`Delete ${CLOTHING_CONFIG[pendingDelete.type].displayName}?`}
+          body="This item will be permanently removed from your wardrobe and any saved outfits that include it."
           onConfirm={handleDeleteConfirm}
           onCancel={() => setPendingDelete(null)}
         />

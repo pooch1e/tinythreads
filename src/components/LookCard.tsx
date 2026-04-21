@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
 import type { SavedLook, ClothingItem, ClothingType } from '@/types';
 import { CLOTHING_TYPES, CLOTHING_CONFIG } from '@/constants/clothing';
-import { getImageUrl } from '@/storage/images';
+import { useSingleImage } from '@/hooks/useSingleImage';
 
 interface LookCardProps {
   look: SavedLook;
@@ -9,29 +9,10 @@ interface LookCardProps {
   onDelete: (id: string) => void;
 }
 
-// Load a single image URL from IndexedDB, return null if missing
-function useImageUrl(imageId: string | undefined) {
-  const [url, setUrl] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!imageId) return;
-    let objectUrl: string | null = null;
-    getImageUrl(imageId).then((u) => {
-      objectUrl = u;
-      setUrl(u);
-    });
-    return () => {
-      if (objectUrl) URL.revokeObjectURL(objectUrl);
-    };
-  }, [imageId]);
-
-  return url;
-}
-
 // One slot in the 2×2 image grid
 function GridSlot({ type, item }: { type: ClothingType; item: ClothingItem | undefined }) {
   const cfg = CLOTHING_CONFIG[type];
-  const url = useImageUrl(item?.imageId);
+  const url = useSingleImage(item?.imageId);
 
   return (
     <div className="w-full aspect-square rounded-xl overflow-hidden bg-gray-100 flex items-center justify-center">
@@ -45,7 +26,7 @@ function GridSlot({ type, item }: { type: ClothingType; item: ClothingItem | und
 }
 
 export default function LookCard({ look, allItems, onDelete }: LookCardProps) {
-  const itemsById = new Map(allItems.map((i) => [i.id, i]));
+  const itemsById = useMemo(() => new Map(allItems.map((i) => [i.id, i])), [allItems]);
 
   const date = new Date(look.createdAt).toLocaleDateString('en-GB', {
     day: 'numeric',

@@ -3,6 +3,7 @@ import { useDrag } from '@use-gesture/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { ClothingItem, ClothingType } from '@/types';
 import { CLOTHING_CONFIG } from '@/constants/clothing';
+import ItemTags from '@/components/ItemTags';
 
 interface OutfitSlotRowProps {
   type: ClothingType;
@@ -112,22 +113,9 @@ export default function OutfitSlotRow({
       {/* Right: tags + pagination dots */}
       <div className="flex flex-col items-start gap-2 w-20 flex-shrink-0">
         {currentItem && (
-          <>
-            {currentItem.size && (
-              <span className="text-[10px] font-medium bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">
-                {currentItem.size}
-              </span>
-            )}
-            {currentItem.colour && (
-              <span className="inline-flex items-center gap-1 text-[10px] font-medium bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">
-                <span
-                  className="w-2 h-2 rounded-full border border-gray-200 flex-shrink-0"
-                  style={{ backgroundColor: currentItem.colour.hex }}
-                />
-                {currentItem.colour.name}
-              </span>
-            )}
-          </>
+          <div className="flex flex-col items-start gap-1">
+            <ItemTags item={currentItem} />
+          </div>
         )}
 
         {/* Pagination dots */}

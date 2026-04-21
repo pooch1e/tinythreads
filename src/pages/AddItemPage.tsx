@@ -2,9 +2,9 @@ import { useNavigate } from 'react-router-dom';
 import { useRef, useState } from 'react';
 import { useWardrobe } from '@/hooks/useWardrobe';
 import { CLOTHING_TYPES, CLOTHING_CONFIG } from '@/constants/clothing';
-import { COLOUR_PALETTE } from '@/constants/colours';
-import { BABY_SIZES } from '@/constants/sizes';
 import type { ClothingType, BabySize, ClothingColour } from '@/types';
+import SizePicker from '@/components/SizePicker';
+import ColourPicker from '@/components/ColourPicker';
 
 export default function AddItemPage() {
   const navigate = useNavigate();
@@ -89,24 +89,7 @@ export default function AddItemPage() {
           <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
             Size <span className="text-gray-400 font-normal normal-case">(optional)</span>
           </h2>
-          <div className="flex flex-wrap gap-2">
-            {BABY_SIZES.map((size) => {
-              const active = selectedSize === size;
-              return (
-                <button
-                  key={size}
-                  onClick={() => setSelectedSize(active ? null : size)}
-                  className={`px-3 py-1.5 rounded-full border text-sm font-medium transition-all active:scale-95 ${
-                    active
-                      ? 'border-pink-400 bg-pink-50 text-pink-700'
-                      : 'border-gray-200 bg-white text-gray-600'
-                  }`}
-                >
-                  {size}
-                </button>
-              );
-            })}
-          </div>
+          <SizePicker value={selectedSize} onChange={setSelectedSize} />
         </section>
 
         {/* Colour */}
@@ -114,24 +97,7 @@ export default function AddItemPage() {
           <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
             Colour <span className="text-gray-400 font-normal normal-case">(optional)</span>
           </h2>
-          <div className="flex flex-wrap gap-3">
-            {COLOUR_PALETTE.map((colour) => {
-              const active = selectedColour?.name === colour.name;
-              return (
-                <button
-                  key={colour.name}
-                  onClick={() => setSelectedColour(active ? null : colour)}
-                  title={colour.name}
-                  className={`w-9 h-9 rounded-full border-2 transition-all active:scale-90 ${
-                    active ? 'border-pink-500 scale-110' : 'border-gray-200'
-                  }`}
-                  style={{ backgroundColor: colour.hex }}
-                  aria-label={colour.name}
-                  aria-pressed={active}
-                />
-              );
-            })}
-          </div>
+          <ColourPicker value={selectedColour} onChange={setSelectedColour} />
           {selectedColour && (
             <p className="mt-2 text-sm text-gray-500">
               Selected: <span className="font-medium text-gray-700">{selectedColour.name}</span>

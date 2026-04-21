@@ -3,51 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { useLooks } from '@/hooks/useLooks';
 import { useWardrobe } from '@/hooks/useWardrobe';
 import type { SavedLook } from '@/types';
+import { MAX_LOOKS } from '@/constants/limits';
 import LookCard from '@/components/LookCard';
 import EmptyState from '@/components/EmptyState';
-
-// ── Confirmation dialog ──────────────────────────────────────
-
-interface ConfirmDeleteProps {
-  look: SavedLook;
-  onConfirm: () => void;
-  onCancel: () => void;
-}
-
-function ConfirmDeleteDialog({ look, onConfirm, onCancel }: ConfirmDeleteProps) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center" onClick={onCancel}>
-      <div className="absolute inset-0 bg-black/40" />
-      <div
-        className="relative w-full max-w-[430px] bg-white rounded-t-3xl px-5 py-6 space-y-4"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h3 className="text-base font-semibold text-gray-800 text-center">
-          Delete "{look.name}"?
-        </h3>
-        <p className="text-sm text-gray-500 text-center">
-          This outfit will be permanently deleted. The individual clothing items will not be affected.
-        </p>
-        <div className="flex flex-col gap-2 pt-1">
-          <button
-            onClick={onConfirm}
-            className="w-full py-3.5 bg-red-500 text-white rounded-2xl font-semibold text-sm active:bg-red-600 active:scale-95 transition-all"
-          >
-            Delete
-          </button>
-          <button
-            onClick={onCancel}
-            className="w-full py-3.5 bg-gray-100 text-gray-700 rounded-2xl font-semibold text-sm active:bg-gray-200 active:scale-95 transition-all"
-          >
-            Cancel
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ── Main page ────────────────────────────────────────────────
+import ConfirmDeleteSheet from '@/components/ConfirmDeleteSheet';
 
 export default function OutfitsPage() {
   const navigate = useNavigate();
@@ -84,7 +43,7 @@ export default function OutfitsPage() {
       <div className="flex items-center justify-between px-4 py-4 border-b border-gray-100">
         <h1 className="text-lg font-semibold text-gray-800">Outfits</h1>
         <span className="text-xs text-gray-400 font-medium">
-          {looks.length} / 10
+          {looks.length} / {MAX_LOOKS}
         </span>
       </div>
 
@@ -102,8 +61,9 @@ export default function OutfitsPage() {
 
       {/* Delete confirmation sheet */}
       {pendingDelete && (
-        <ConfirmDeleteDialog
-          look={pendingDelete}
+        <ConfirmDeleteSheet
+          title={`Delete "${pendingDelete.name}"?`}
+          body="This outfit will be permanently deleted. The individual clothing items will not be affected."
           onConfirm={handleDeleteConfirm}
           onCancel={() => setPendingDelete(null)}
         />

@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import type { SavedLook, ClothingType } from '../types';
-import { MAX_LOOKS } from '../types';
+import { MAX_LOOKS } from '../constants/limits';
 import {
   loadLooks,
   addLookToStorage,
