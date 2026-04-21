@@ -1,49 +1,39 @@
-import { useState, useEffect, useCallback } from 'react';
-import { SavedLook, MAX_LOOKS } from '../types';
-import { loadLooks, saveLook, deleteLook as deleteLookFromStorage } from '../storage';
-import * as Crypto from 'expo-crypto';
+import { useState, useCallback } from 'react';
+import type { SavedLook, ClothingType } from '../types';
+import { MAX_LOOKS } from '../types';
+import {
+  loadLooks,
+  addLookToStorage,
+  removeLookFromStorage,
+} from '../storage/metadata';
 
 export function useLooks() {
-  const [looks, setLooks] = useState<SavedLook[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [looks, setLooks] = useState<SavedLook[]>(() => loadLooks());
 
-  const refresh = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const loaded = await loadLooks();
-      // Chronological, newest first
-      setLooks(loaded.sort((a, b) => b.createdAt - a.createdAt));
-    } finally {
-      setIsLoading(false);
-    }
+  const refresh = useCallback(() => {
+    setLooks(loadLooks());
   }, []);
 
-  useEffect(() => {
-    refresh();
-  }, [refresh]);
-
   const addLook = useCallback(
-    async (name: string, itemIds: SavedLook['itemIds']): Promise<SavedLook | null> => {
-      if (looks.length >= MAX_LOOKS) return null;
+    (name: string, itemIds: Partial<Record<ClothingType, string>>): void => {
       const look: SavedLook = {
-        id: Crypto.randomUUID(),
-        name: name.trim() || 'Untitled Look',
+        id: crypto.randomUUID(),
+        name: name.trim(),
         itemIds,
         createdAt: Date.now(),
       };
-      await saveLook(look);
-      setLooks((prev) => [look, ...prev]);
-      return look;
+      addLookToStorage(look);
+      setLooks(loadLooks());
     },
-    [looks.length],
+    [],
   );
 
-  const deleteLook = useCallback(async (id: string) => {
-    await deleteLookFromStorage(id);
-    setLooks((prev) => prev.filter((l) => l.id !== id));
+  const deleteLook = useCallback((id: string): void => {
+    removeLookFromStorage(id);
+    setLooks(loadLooks());
   }, []);
 
   const atLimit = looks.length >= MAX_LOOKS;
 
-  return { looks, isLoading, addLook, deleteLook, refresh, atLimit };
+  return { looks, addLook, deleteLook, refresh, atLimit };
 }

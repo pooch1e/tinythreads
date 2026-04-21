@@ -1,0 +1,65 @@
+@import "tailwindcss";
+
+/* ── Mobile shell ─────────────────────────────────────────── */
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: #f3f4f6;
+}
+
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  max-width: 430px;
+  margin: 0 auto;
+  background: #ffffff;
+  position: relative;
+  box-shadow: 0 0 40px rgba(0,0,0,0.08);
+}
+
+.app-content {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ── Bottom navigation ────────────────────────────────────── */
+
+.bottom-nav {
+  display: flex;
+  border-top: 1px solid #e5e7eb;
+  background: #ffffff;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  flex-shrink: 0;
+}
+
+.bottom-nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 0;
+  text-decoration: none;
+  color: #9ca3af;
+  transition: color 0.15s;
+  gap: 2px;
+}
+
+.bottom-nav-item.active {
+  color: #ec4899;
+}
+
+.bottom-nav-icon {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.bottom-nav-label {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}

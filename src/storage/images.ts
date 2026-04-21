@@ -1,32 +1,48 @@
-import * as FileSystem from 'expo-file-system/legacy';
+import { openDB, type IDBPDatabase } from 'idb';
 
-const IMAGE_DIR = `${FileSystem.documentDirectory}tinythreads/images/`;
+const DB_NAME = 'tinythreads';
+const DB_VERSION = 1;
+const STORE_NAME = 'images';
 
-export async function ensureImageDirExists(): Promise<void> {
-  const info = await FileSystem.getInfoAsync(IMAGE_DIR);
-  if (!info.exists) {
-    await FileSystem.makeDirectoryAsync(IMAGE_DIR, { intermediates: true });
+type TinyThreadsDB = {
+  images: {
+    key: string;
+    value: Blob;
+  };
+};
+
+let dbPromise: Promise<IDBPDatabase<TinyThreadsDB>> | null = null;
+
+function getDB(): Promise<IDBPDatabase<TinyThreadsDB>> {
+  if (!dbPromise) {
+    dbPromise = openDB<TinyThreadsDB>(DB_NAME, DB_VERSION, {
+      upgrade(db) {
+        if (!db.objectStoreNames.contains(STORE_NAME)) {
+          db.createObjectStore(STORE_NAME);
+        }
+      },
+    });
   }
+  return dbPromise;
 }
 
-/**
- * Copy a processed image into the app's persistent image directory.
- * Returns the new permanent URI.
- */
-export async function saveImage(tempUri: string, itemId: string, isPng = false): Promise<string> {
-  await ensureImageDirExists();
-  const ext = isPng ? 'png' : 'jpg';
-  const dest = `${IMAGE_DIR}${itemId}.${ext}`;
-  await FileSystem.copyAsync({ from: tempUri, to: dest });
-  return dest;
+export async function saveImage(id: string, blob: Blob): Promise<void> {
+  const db = await getDB();
+  await db.put(STORE_NAME, blob, id);
 }
 
-/**
- * Delete an image file from the persistent directory. Silently ignores missing files.
- */
-export async function deleteImage(imageUri: string): Promise<void> {
-  const info = await FileSystem.getInfoAsync(imageUri);
-  if (info.exists) {
-    await FileSystem.deleteAsync(imageUri, { idempotent: true });
-  }
+export async function getImageBlob(id: string): Promise<Blob | undefined> {
+  const db = await getDB();
+  return db.get(STORE_NAME, id);
+}
+
+export async function getImageUrl(id: string): Promise<string | null> {
+  const blob = await getImageBlob(id);
+  if (!blob) return null;
+  return URL.createObjectURL(blob);
+}
+
+export async function deleteImage(id: string): Promise<void> {
+  const db = await getDB();
+  await db.delete(STORE_NAME, id);
 }

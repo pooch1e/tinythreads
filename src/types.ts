@@ -18,11 +18,10 @@ export interface ClothingColour {
 export interface ClothingItem {
   id: string;
   type: ClothingType;
-  imageUri: string;           // Absolute FileSystem path
-  backgroundRemoved: boolean; // false when fallback (original image saved)
+  imageId: string;      // IndexedDB key for the image blob
   size?: BabySize;
   colour?: ClothingColour;
-  createdAt: number;          // Unix timestamp ms
+  createdAt: number;    // Unix timestamp ms
 }
 
 export interface SavedLook {
@@ -32,4 +31,4 @@ export interface SavedLook {
   createdAt: number;
 }
 
-export const MAX_LOOKS = 5;
+export const MAX_LOOKS = 10;

@@ -1,18 +1,18 @@
-import { ClothingColour } from '../types';
+import type { ClothingColour } from '../types';
 
 export const COLOUR_PALETTE: ClothingColour[] = [
-  { name: 'White', hex: '#FFFFFF' },
-  { name: 'Cream', hex: '#F5F0E8' },
-  { name: 'Yellow', hex: '#FFD166' },
-  { name: 'Orange', hex: '#F4A261' },
-  { name: 'Red', hex: '#E63946' },
-  { name: 'Pink', hex: '#FFAFCC' },
-  { name: 'Purple', hex: '#9B5DE5' },
-  { name: 'Blue', hex: '#457B9D' },
-  { name: 'Navy', hex: '#1D3557' },
-  { name: 'Green', hex: '#588157' },
-  { name: 'Grey', hex: '#ADB5BD' },
-  { name: 'Brown', hex: '#8D6E63' },
-  { name: 'Black', hex: '#212121' },
-  { name: 'Multi', hex: '#C8C8C8' },
+  { name: 'White',       hex: '#FFFFFF' },
+  { name: 'Cream',       hex: '#FFFDD0' },
+  { name: 'Yellow',      hex: '#FDE68A' },
+  { name: 'Orange',      hex: '#FB923C' },
+  { name: 'Pink',        hex: '#F9A8D4' },
+  { name: 'Red',         hex: '#EF4444' },
+  { name: 'Purple',      hex: '#C084FC' },
+  { name: 'Blue',        hex: '#60A5FA' },
+  { name: 'Navy',        hex: '#1E3A5F' },
+  { name: 'Teal',        hex: '#2DD4BF' },
+  { name: 'Green',       hex: '#4ADE80' },
+  { name: 'Grey',        hex: '#9CA3AF' },
+  { name: 'Brown',       hex: '#92400E' },
+  { name: 'Black',       hex: '#111827' },
 ];
