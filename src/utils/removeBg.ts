@@ -11,3 +11,22 @@ export async function removeBg({ file }: RemoveBgProps): Promise<Blob> {
     throw new Error(`Error removing image background: ${error}`);
   }
 }
+
+const worker = new Worker(
+  new URL("../workers/removeBg.worker.ts", import.meta.url),
+  { type: "module" },
+);
+
+export function removeBgAsync(file: File | Blob): Promise<Blob> {
+  return new Promise((resolve, reject) => {
+    worker.onmessage = (event) => {
+      const { success, buffer, error } = event.data;
+      if (success) {
+        resolve(new Blob([buffer], { type: "image/png" }));
+      } else {
+        reject(new Error(error));
+      }
+    };
+    worker.postMessage({ file });
+  });
+}
