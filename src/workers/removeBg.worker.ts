@@ -1,17 +1,17 @@
-import { removeBg } from "../utils/removeBg";
+import { removeBackground } from "@imgly/background-removal";
 
 self.onmessage = async (event) => {
-  const { file } = event.data;
+  const { file, requestId } = event.data;
 
   try {
-    const result = await removeBg({ file });
+    const result = await removeBackground(file);
     const arrayBuffer = await result.arrayBuffer();
     self.postMessage(
-      { success: true, buffer: arrayBuffer },
+      { success: true, requestId, buffer: arrayBuffer },
       { transfer: [arrayBuffer] },
     );
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    self.postMessage({ success: false, error: errorMessage });
+    self.postMessage({ success: false, requestId, error: errorMessage });
   }
 };

@@ -9,7 +9,11 @@ export function loadImage(src: string): Promise<HTMLImageElement> {
   });
 }
 
-export function canvasToBlob(canvas: HTMLCanvasElement, type: string): Promise<Blob> {
+export function canvasToBlob(
+  canvas: HTMLCanvasElement,
+  type: string,
+  quality?: number,
+): Promise<Blob> {
   return new Promise((resolve, reject) => {
     canvas.toBlob((blob) => {
       if (blob) {
@@ -17,6 +21,6 @@ export function canvasToBlob(canvas: HTMLCanvasElement, type: string): Promise<B
       } else {
         reject(new Error("Canvas toBlob failed"));
       }
-    }, type);
+    }, type, quality);
   });
 }

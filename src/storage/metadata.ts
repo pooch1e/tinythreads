@@ -31,6 +31,13 @@ export const saveItems = (items: ClothingItem[]) =>
   localStorage.setItem(ITEMS_KEY, JSON.stringify(items));
 export const addItemToStorage = (item: ClothingItem) => addToStorage<ClothingItem>(ITEMS_KEY, item);
 export const removeItemFromStorage = (id: string) => removeFromStorage(ITEMS_KEY, id);
+export const updateItemInStorage = (
+  id: string,
+  updater: (item: ClothingItem) => ClothingItem,
+) => {
+  const items = loadItems().map((item) => (item.id === id ? updater(item) : item));
+  saveItems(items);
+};
 
 // ── Looks ─────────────────────────────────────────────────────
 
