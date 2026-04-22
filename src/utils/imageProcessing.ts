@@ -13,10 +13,11 @@ export async function processImage(file: File | Blob): Promise<Blob> {
   // Try remove bg, if error - continue
   try {
     source = await removeBg({ file });
+    console.log('proccessed background')
   } catch {
     source = file;
   }
-
+  
   const url = URL.createObjectURL(source);
 
   try {
