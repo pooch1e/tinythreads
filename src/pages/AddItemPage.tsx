@@ -122,7 +122,7 @@ export default function AddItemPage() {
               : 'bg-pink-500 text-white shadow-sm active:bg-pink-600'
           }`}
         >
-          {isAdding ? 'Saving…' : '📷  Choose photo'}
+          {isAdding ? 'Adding to wardrobe…' : '📷  Choose photo'}
         </button>
       </div>
 

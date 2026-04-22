@@ -8,13 +8,21 @@ interface ClothingCardProps {
 }
 
 export default function ClothingCard({ item, onDelete }: ClothingCardProps) {
-  const imageUrl = useSingleImage(item.imageId);
+  const imageUrl = useSingleImage(item.imageId, item.processing ? 'processing' : 'ready');
 
   return (
     <div className="relative flex-shrink-0 w-[100px]">
       {/* Image */}
       <div className="w-[100px] h-[100px] rounded-2xl overflow-hidden bg-gray-100">
-        {imageUrl ? (
+        {item.processing ? (
+          <div className="w-full h-full flex flex-col items-center justify-center gap-1.5 bg-gradient-to-br from-pink-50 via-white to-amber-50 text-pink-400 animate-pulse">
+            <div className="relative text-3xl leading-none">
+              <span aria-hidden="true">🧸</span>
+              <span className="absolute -top-1 -right-3 text-sm">✨</span>
+            </div>
+            <span className="text-[10px] font-medium tracking-wide text-pink-500">Snipping...</span>
+          </div>
+        ) : imageUrl ? (
           <img
             src={imageUrl}
             alt={item.type}

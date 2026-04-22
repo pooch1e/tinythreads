@@ -1,12 +1,17 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import type { ClothingItem, ClothingType, BabySize, ClothingColour } from '../types';
 import {
   loadItems,
   addItemToStorage,
   removeItemFromStorage,
+  updateItemInStorage,
 } from '../storage/metadata';
 import { saveImage, deleteImage } from '../storage/images';
-import { processImage } from '../utils/imageProcessing';
+import { prepareUploadedImage, removeImageBackground } from '../utils/imageProcessing';
+import {
+  notifyWardrobeItemsUpdated,
+  subscribeToWardrobeItemsUpdated,
+} from '../utils/wardrobeEvents';
 
 export function useWardrobe() {
   const [items, setItems] = useState<ClothingItem[]>(() => loadItems());
@@ -15,6 +20,8 @@ export function useWardrobe() {
   const refresh = useCallback(() => {
     setItems(loadItems());
   }, []);
+
+  useEffect(() => subscribeToWardrobeItemsUpdated(refresh), [refresh]);
 
   const addItem = useCallback(
     async (
@@ -25,7 +32,7 @@ export function useWardrobe() {
     ): Promise<void> => {
       setIsAdding(true);
       try {
-        const blob = await processImage(file);
+        const blob = await prepareUploadedImage(file);
         const id = crypto.randomUUID();
         await saveImage(id, blob);
 
@@ -36,15 +43,31 @@ export function useWardrobe() {
           size,
           colour,
           createdAt: Date.now(),
+          processing: true,
         };
 
         addItemToStorage(item);
-        setItems(loadItems());
+        refresh();
+        notifyWardrobeItemsUpdated();
+
+        void (async () => {
+          try {
+            const processedBlob = await removeImageBackground(file);
+            await saveImage(id, processedBlob);
+          } finally {
+            updateItemInStorage(id, (storedItem) => ({
+              ...storedItem,
+              processing: false,
+            }));
+            refresh();
+            notifyWardrobeItemsUpdated();
+          }
+        })();
       } finally {
         setIsAdding(false);
       }
     },
-    [],
+    [refresh],
   );
 
   const deleteItem = useCallback(async (id: string): Promise<void> => {
@@ -53,8 +76,9 @@ export function useWardrobe() {
       await deleteImage(item.imageId);
     }
     removeItemFromStorage(id);
-    setItems(loadItems());
-  }, []);
+    refresh();
+    notifyWardrobeItemsUpdated();
+  }, [refresh]);
 
   return { items, isAdding, addItem, deleteItem, refresh };
 }
