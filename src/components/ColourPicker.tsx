@@ -26,13 +26,16 @@ export default function ColourPicker({
             <button
               onClick={() => onChange(active ? null : colour)}
               title={colour.name}
-              className={`${swatchSize} rounded-full border-2 transition-all active:scale-90 ${
+              className={`${swatchSize} rounded-full border-2 transition-all active:scale-90 relative ${
                 active ? "border-black scale-110" : "border-gray-200"
               }`}
               style={{ backgroundColor: colour.hex }}
               aria-label={colour.name}
               aria-pressed={active}
-            />
+            >
+              <span className="absolute top-1/2 left-1/2 -translate-1/2 size-12"></span>
+              {/* testing tailwind lab trick to get the animated div*/}
+            </button>
           </div>
         );
       })}
