@@ -19,10 +19,10 @@ export default function SizePicker({ value, onChange }: SizePickerProps) {
           <button
             key={size}
             onClick={() => onChange(active ? null : size)}
-            className={`px-3 py-1.5 rounded-full border text-sm font-medium transition-all active:scale-95 ${
+            className={`px-3 py-1.5 rounded-full border text-sm font-medium transition-[colors,transform] duration-150 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#abc4ff]/50 ${
               active
-                ? 'border-pink-400 bg-pink-50 text-pink-700'
-                : 'border-gray-200 bg-white text-gray-600'
+                ? 'border-[#abc4ff] bg-[#edf2fb] text-[#3b5bdb] dark:bg-[#1a2442] dark:text-[#abc4ff] dark:border-[#abc4ff]'
+                : 'border-[#ccdbfd] dark:border-[#263352] bg-white dark:bg-[#1a2332] text-gray-600 dark:text-[#b6ccfe]'
             }`}
           >
             {size}

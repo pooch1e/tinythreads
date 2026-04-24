@@ -18,25 +18,23 @@ export default function ColourPicker({
   swatchSize = "w-9 h-9",
 }: ColourPickerProps) {
   return (
-    <div className="flex flex-wrap gap-3">
+    <div className="flex flex-wrap gap-3 p-2 rounded-2xl bg-[#edf2fb] dark:bg-[#1a2332]">
       {COLOUR_PALETTE.map((colour) => {
         const active = value?.name === colour.name;
         return (
-          <div key={colour.name} className=" w-9 h-9">
-            <button
-              onClick={() => onChange(active ? null : colour)}
-              title={colour.name}
-              className={`${swatchSize} rounded-full border-2 transition-all active:scale-90 relative ${
-                active ? "border-black scale-110" : "border-gray-200"
-              }`}
-              style={{ backgroundColor: colour.hex }}
-              aria-label={colour.name}
-              aria-pressed={active}
-            >
-              <span className="absolute top-1/2 left-1/2 -translate-1/2 size-12"></span>
-              {/* testing tailwind lab trick to get the animated div*/}
-            </button>
-          </div>
+          <button
+            key={colour.name}
+            onClick={() => onChange(active ? null : colour)}
+            title={colour.name}
+            className={`${swatchSize} rounded-full border-2 transition-[colors,transform] duration-150 active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#abc4ff]/50 ${
+              active
+                ? "border-[#abc4ff] scale-110"
+                : "border-periwinkle dark:border-border"
+            }`}
+            style={{ backgroundColor: colour.hex }}
+            aria-label={colour.name}
+            aria-pressed={active}
+          />
         );
       })}
     </div>

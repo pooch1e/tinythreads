@@ -23,8 +23,8 @@ export default function OutfitsPage() {
   if (looks.length === 0) {
     return (
       <div className="flex flex-col h-full">
-        <div className="px-4 py-4 border-b border-gray-100">
-          <h1 className="text-lg font-semibold text-gray-800">Outfits</h1>
+        <div className="px-4 py-4 border-b border-[#d7e3fc] dark:border-[#263352]">
+          <h1 className="text-lg font-semibold text-gray-800 dark:text-[#edf2fb]">Outfits</h1>
         </div>
         <EmptyState
           icon="📸"
@@ -40,9 +40,9 @@ export default function OutfitsPage() {
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-4 border-b border-gray-100">
-        <h1 className="text-lg font-semibold text-gray-800">Outfits</h1>
-        <span className="text-xs text-gray-400 font-medium">
+      <div className="flex items-center justify-between px-4 py-4 border-b border-[#d7e3fc] dark:border-[#263352]">
+        <h1 className="text-lg font-semibold text-gray-800 dark:text-[#edf2fb]">Outfits</h1>
+        <span className="text-xs text-gray-400 dark:text-[#7a90c0] font-medium">
           {looks.length} / {MAX_LOOKS}
         </span>
       </div>
@@ -59,7 +59,6 @@ export default function OutfitsPage() {
         ))}
       </div>
 
-      {/* Delete confirmation sheet */}
       {pendingDelete && (
         <ConfirmDeleteSheet
           title={`Delete "${pendingDelete.name}"?`}

@@ -13,7 +13,7 @@ interface OutfitSlotRowProps {
   onIndexChange: (index: number) => void;
 }
 
-const SWIPE_THRESHOLD = 40; // px to trigger a swipe
+const SWIPE_THRESHOLD = 40;
 
 export default function OutfitSlotRow({
   type,
@@ -39,14 +39,7 @@ export default function OutfitSlotRow({
     ({ last, movement: [mx], direction: [dx], cancel }) => {
       if (!last) return;
       if (Math.abs(mx) < SWIPE_THRESHOLD) return;
-      // Positive dx = swipe right = go to previous
-      if (dx > 0) {
-        cancel();
-        prev();
-      } else {
-        cancel();
-        next();
-      }
+      if (dx > 0) { cancel(); prev(); } else { cancel(); next(); }
     },
     { axis: 'x', filterTaps: true },
   );
@@ -55,11 +48,11 @@ export default function OutfitSlotRow({
   const imageUrl = currentItem ? imageMap.get(currentItem.imageId) : null;
 
   return (
-    <div className="flex items-center gap-4 px-4 py-3 border-b border-gray-100 last:border-b-0">
+    <div className="flex items-center gap-4 px-4 py-3 border-b border-[#d7e3fc] dark:border-[#263352] last:border-b-0">
       {/* Type label */}
       <div className="flex flex-col items-center gap-1 w-14 flex-shrink-0">
         <span className="text-2xl">{cfg.icon}</span>
-        <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide">
+        <span className="text-[10px] font-semibold text-gray-400 dark:text-[#7a90c0] uppercase tracking-wide">
           {cfg.displayName}
         </span>
       </div>
@@ -67,12 +60,10 @@ export default function OutfitSlotRow({
       {/* Swipeable image card */}
       <div
         {...(items.length > 1 ? bind() : {})}
-        className="relative flex-1 flex items-center justify-center overflow-hidden touch-pan-y"
-        style={{ height: 120 }}
+        className="relative flex-1 flex items-center justify-center overflow-hidden touch-pan-y h-[120px]"
       >
         {items.length === 0 ? (
-          // Empty slot placeholder
-          <div className="w-[100px] h-[100px] rounded-2xl border-2 border-dashed border-gray-200 flex items-center justify-center text-gray-300">
+          <div className="w-[100px] h-[100px] rounded-2xl border-2 border-dashed border-[#ccdbfd] dark:border-[#263352] flex items-center justify-center text-[#b6ccfe] dark:text-[#263352]">
             <span className="text-3xl">{cfg.icon}</span>
           </div>
         ) : (
@@ -91,7 +82,7 @@ export default function OutfitSlotRow({
               transition={{ duration: 0.18, ease: 'easeOut' }}
               className="flex-shrink-0"
             >
-              <div className="w-[100px] h-[100px] rounded-2xl overflow-hidden bg-gray-100 shadow-sm">
+              <div className="w-[100px] h-[100px] rounded-2xl overflow-hidden bg-[#edf2fb] dark:bg-[#1a2332] shadow-sm">
                 {imageUrl ? (
                   <img
                     src={imageUrl}
@@ -100,7 +91,7 @@ export default function OutfitSlotRow({
                     draggable={false}
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-gray-300 text-3xl">
+                  <div className="w-full h-full flex items-center justify-center text-[#b6ccfe] dark:text-[#263352] text-3xl">
                     ☁
                   </div>
                 )}
@@ -118,14 +109,15 @@ export default function OutfitSlotRow({
           </div>
         )}
 
-        {/* Pagination dots */}
         {items.length > 1 && (
           <div className="flex items-center gap-1 flex-wrap mt-auto">
             {items.map((_, i) => (
               <span
                 key={i}
-                className={`w-1.5 h-1.5 rounded-full transition-all ${
-                  i === selectedIndex ? 'bg-pink-500 scale-125' : 'bg-gray-300'
+                className={`w-1.5 h-1.5 rounded-full transition-[colors,transform] duration-150 ${
+                  i === selectedIndex
+                    ? 'bg-[#abc4ff] scale-125'
+                    : 'bg-[#ccdbfd] dark:bg-[#263352]'
                 }`}
               />
             ))}
@@ -133,7 +125,7 @@ export default function OutfitSlotRow({
         )}
 
         {items.length === 0 && (
-          <span className="text-[10px] text-gray-400 leading-tight">
+          <span className="text-[10px] text-gray-400 dark:text-[#7a90c0] leading-tight">
             No items yet
           </span>
         )}

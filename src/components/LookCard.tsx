@@ -15,7 +15,7 @@ function GridSlot({ type, item }: { type: ClothingType; item: ClothingItem | und
   const url = useSingleImage(item?.imageId);
 
   return (
-    <div className="w-full aspect-square rounded-xl overflow-hidden bg-gray-100 flex items-center justify-center">
+    <div className="w-full aspect-square rounded-lg overflow-hidden bg-[#edf2fb] dark:bg-[#1a2332] flex items-center justify-center">
       {item && url ? (
         <img src={url} alt={type} className="w-full h-full object-cover" draggable={false} />
       ) : (
@@ -35,16 +35,16 @@ export default function LookCard({ look, allItems, onDelete }: LookCardProps) {
   });
 
   return (
-    <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+    <div className="bg-white dark:bg-[#111827] rounded-2xl border border-[#d7e3fc] dark:border-[#263352] shadow-sm overflow-hidden">
       {/* Card header */}
       <div className="flex items-center justify-between px-4 pt-4 pb-2">
         <div>
-          <h3 className="font-semibold text-gray-800 text-sm leading-tight">{look.name}</h3>
-          <p className="text-[11px] text-gray-400 mt-0.5">{date}</p>
+          <h3 className="font-semibold text-gray-800 dark:text-[#edf2fb] text-sm leading-tight">{look.name}</h3>
+          <p className="text-[11px] text-gray-400 dark:text-[#7a90c0] mt-0.5">{date}</p>
         </div>
         <button
           onClick={() => onDelete(look.id)}
-          className="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 active:text-red-500 active:bg-red-50 transition-colors"
+          className="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 dark:text-[#7a90c0] active:text-red-500 active:bg-red-50 dark:active:bg-red-950 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#abc4ff]/50"
           aria-label="Delete outfit"
         >
           🗑

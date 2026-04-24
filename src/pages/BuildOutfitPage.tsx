@@ -17,27 +17,19 @@ export default function BuildOutfitPage() {
   const { items } = useWardrobe();
   const { addLook, atLimit } = useLooks();
 
-  // Group items by type
   const itemsByType = useMemo(() => groupItemsByType(items), [items]);
-
-  // Load all images upfront
   const imageMap = useItemImages(items);
 
-  // Selected index per slot (always 0-based into that type's items array)
   const [selectedIndices, setSelectedIndices] = useState<Record<ClothingType, number>>(
     () => Object.fromEntries(CLOTHING_TYPES.map((t) => [t, 0])) as Record<ClothingType, number>,
   );
-
   const [modalVisible, setModalVisible] = useState(false);
 
-  // Compute selected item IDs for non-empty slots
   const selectedItemIds = useMemo(() => {
     const result: Partial<Record<ClothingType, string>> = {};
     for (const type of CLOTHING_TYPES) {
       const typeItems = itemsByType[type];
-      if (typeItems.length > 0) {
-        result[type] = typeItems[selectedIndices[type]]?.id;
-      }
+      if (typeItems.length > 0) result[type] = typeItems[selectedIndices[type]]?.id;
     }
     return result;
   }, [itemsByType, selectedIndices]);
@@ -53,8 +45,8 @@ export default function BuildOutfitPage() {
   if (items.length === 0) {
     return (
       <div className="flex flex-col h-full">
-        <div className="px-4 py-4 border-b border-gray-100">
-          <h1 className="text-lg font-semibold text-gray-800">Build Outfit</h1>
+        <div className="px-4 py-4 border-b border-[#d7e3fc] dark:border-[#263352]">
+          <h1 className="text-lg font-semibold text-gray-800 dark:text-[#edf2fb]">Build Outfit</h1>
         </div>
         <EmptyState
           icon="✨"
@@ -70,9 +62,9 @@ export default function BuildOutfitPage() {
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="px-4 py-4 border-b border-gray-100">
-        <h1 className="text-lg font-semibold text-gray-800">Build Outfit</h1>
-        <p className="text-xs text-gray-400 mt-0.5">Swipe each row to change the item</p>
+      <div className="px-4 py-4 border-b border-[#d7e3fc] dark:border-[#263352]">
+        <h1 className="text-lg font-semibold text-gray-800 dark:text-[#edf2fb]">Build Outfit</h1>
+        <p className="text-xs text-gray-400 dark:text-[#7a90c0] mt-0.5">Swipe each row to change the item</p>
       </div>
 
       {/* Slot rows */}
@@ -92,26 +84,25 @@ export default function BuildOutfitPage() {
       </div>
 
       {/* Footer */}
-      <div className="px-4 py-4 border-t border-gray-100 space-y-2">
+      <div className="px-4 py-4 border-t border-[#d7e3fc] dark:border-[#263352] space-y-2">
         {atLimit && (
-          <p className="text-xs text-center text-amber-600 bg-amber-50 px-3 py-2 rounded-xl">
+          <p className="text-xs text-center text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950 px-3 py-2 rounded-xl">
             You've reached the {MAX_LOOKS} outfit limit. Delete an outfit to save a new one.
           </p>
         )}
         <button
           onClick={() => setModalVisible(true)}
           disabled={!hasAnySelection || atLimit}
-          className={`w-full py-4 rounded-2xl font-semibold text-base transition-all active:scale-95 ${
+          className={`w-full py-4 rounded-2xl font-semibold text-base transition-[colors,transform] duration-150 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#abc4ff]/50 ${
             !hasAnySelection || atLimit
-              ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-              : 'bg-pink-500 text-white shadow-sm active:bg-pink-600'
+              ? 'bg-[#edf2fb] dark:bg-[#1a2332] text-gray-400 dark:text-[#7a90c0] cursor-not-allowed'
+              : 'bg-[#abc4ff] text-white shadow-sm active:bg-[#92aaee]'
           }`}
         >
           Save outfit
         </button>
       </div>
 
-      {/* Save modal */}
       <AnimatePresence>
         {modalVisible && (
           <SaveOutfitModal

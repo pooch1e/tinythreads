@@ -1,12 +1,105 @@
 @import "tailwindcss";
 
+/* ── Design Tokens ────────────────────────────────────────── */
+
+@theme {
+  /* ── Brand palette ──────────────────────────────────────── */
+  /* alice-blue → lavender → periwinkle → baby-blue-ice       */
+  --color-alice-blue: #edf2fb;
+  --color-lavender: #e2eafc;
+  --color-lavender-2: #d7e3fc;
+  --color-periwinkle: #ccdbfd;
+  --color-periwinkle-2: #c1d3fe;
+  --color-periwinkle-3: #b6ccfe;
+  --color-baby-blue: #abc4ff;
+
+  /* Primary — baby-blue-ice as accent */
+  --color-primary: #abc4ff;
+  --color-primary-hover: #92aaee;
+  --color-primary-surface: #edf2fb;
+  --color-primary-border: #ccdbfd;
+
+  /* Surfaces */
+  --color-surface: #edf2fb;
+  --color-surface-subtle: #f8faff;
+  --color-surface-muted: #edf2fb;
+  --color-bg: #edf2fb;
+
+  /* Borders */
+  --color-border: #d7e3fc;
+  --color-border-subtle: #edf2fb;
+
+  /* Text */
+  --color-text: #1a1f2e;
+  --color-text-secondary: #4a5568;
+  --color-text-muted: #718096;
+
+  /* Semantic */
+  --color-error: #ef4444;
+  --color-error-surface: #fef2f2;
+  --color-warning: #d97706;
+  --color-warning-surface: #fffbeb;
+
+  /* Typography */
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, sans-serif;
+
+  /* Border radius */
+  --radius-sm: 0.5rem;
+  --radius-md: 1rem;
+  --radius-lg: 1.5rem;
+  --radius-full: 9999px;
+
+  /* Motion */
+  --duration-fast: 150ms;
+  --duration-normal: 200ms;
+  --ease-default: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Dark mode token overrides ───────────────────────────── */
+/* Deep navy surfaces — periwinkle accent stays vivid         */
+
+@media (prefers-color-scheme: dark) {
+  @theme {
+    --color-primary: #abc4ff;
+    --color-primary-hover: #c1d3fe;
+    --color-primary-surface: #edf2fb;
+    --color-primary-border: #2d3f6b;
+
+    --color-surface: #edf2fb;
+    --color-surface-subtle: #1a2332;
+    --color-surface-muted: #1a2332;
+    --color-bg: #0d1117;
+
+    --color-border: #263352;
+    --color-border-subtle: #1a2332;
+
+    --color-text: #edf2fb;
+    --color-text-secondary: #b6ccfe;
+    --color-text-muted: #7a90c0;
+  }
+}
+
+/* ── Base ─────────────────────────────────────────────────── */
+
+@layer base {
+  body {
+    font-family: var(--font-sans);
+    background: var(--color-bg);
+    color: var(--color-text);
+  }
+}
+
 /* ── Mobile shell ─────────────────────────────────────────── */
 
-html, body, #root {
+html,
+body,
+#root {
   height: 100%;
   margin: 0;
   padding: 0;
-  background: #f3f4f6;
+  background: var(--color-bg);
 }
 
 .app-shell {
@@ -15,10 +108,8 @@ html, body, #root {
   height: 100dvh;
   max-width: 430px;
   margin: 0 auto;
-  background: #ffffff;
+  background: var(--color-surface);
   position: relative;
-  box-shadow: 0 0 40px rgba(0,0,0,0.08);
-  
 }
 
 .app-content {
@@ -41,8 +132,8 @@ html, body, #root {
 
 .bottom-nav {
   display: flex;
-  border-top: 1px solid #e5e7eb;
-  background: #ffffff;
+  border-top: 1px solid var(--color-border);
+  background: var(--color-surface);
   padding-bottom: env(safe-area-inset-bottom, 0px);
   flex-shrink: 0;
 }
@@ -55,13 +146,13 @@ html, body, #root {
   justify-content: center;
   padding: 10px 0;
   text-decoration: none;
-  color: #9ca3af;
-  transition: color 0.15s;
+  color: var(--color-text-muted);
+  transition: color var(--duration-fast) var(--ease-default);
   gap: 2px;
 }
 
 .bottom-nav-item.active {
-  color: #ec4899;
+  color: var(--color-primary);
 }
 
 .bottom-nav-icon {
@@ -74,5 +165,3 @@ html, body, #root {
   font-weight: 500;
   letter-spacing: 0.02em;
 }
-
-

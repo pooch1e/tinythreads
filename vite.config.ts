@@ -20,7 +20,7 @@ export default defineConfig({
         name: "TinyThreads",
         short_name: "TinyThreads",
         description: "Your baby's digital wardrobe",
-        theme_color: "#f9a8d4",
+        theme_color: "#abc4ff",
         background_color: "#ffffff",
         display: "standalone",
         orientation: "portrait",

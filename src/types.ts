@@ -9,10 +9,16 @@ export type BabySize =
   | "18-24m"
   | "2-3y"
   | "3-4y";
-
 export interface ClothingColour {
   name: string;
   hex: string;
+}
+
+export type Patterns =
+"stripes" | "spots" 
+
+export interface ClothingPattern {
+  name: string;
 }
 
 export interface ClothingItem {
@@ -21,6 +27,7 @@ export interface ClothingItem {
   imageId: string; // IndexedDB key for the image blob
   size?: BabySize;
   colour?: ClothingColour;
+  pattern?: ClothingPattern;
   createdAt: number; // Unix timestamp ms
   processing?: boolean;
 }
