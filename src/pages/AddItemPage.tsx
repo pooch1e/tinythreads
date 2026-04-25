@@ -61,7 +61,7 @@ export default function AddItemPage() {
           Add clothing item
         </h1>
       </div>
-
+q
       {/* Scrollable form */}
       <div className="flex-1 overflow-y-auto px-4 py-5 space-y-7">
         {/* Category */}
