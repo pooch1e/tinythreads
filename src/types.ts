@@ -1,4 +1,4 @@
-export type ClothingType = "hat" | "top" | "trousers" | "socks";
+export type ClothingType = "hat" | "outer" | "top" | "bottoms" | "shoes";
 
 export type BabySize =
   | "0-3m"
@@ -14,8 +14,7 @@ export interface ClothingColour {
   hex: string;
 }
 
-export type Patterns =
-"stripes" | "spots" 
+export type Patterns = "stripes" | "spots";
 
 export interface ClothingPattern {
   name: string;

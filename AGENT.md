@@ -139,7 +139,7 @@ vite.config.ts              — Vite config (React plugin, Tailwind plugin, PWA 
 ```ts
 // src/types.ts
 
-type ClothingType = 'hat' | 'top' | 'trousers' | 'socks';
+type ClothingType = 'hat' | 'top' | 'trousers' | 'shoes';
 
 type BabySize = '0-3m' | '3-6m' | '6-9m' | '9-12m' | '12-18m' | '18-24m' | '2-3y' | '3-4y';
 

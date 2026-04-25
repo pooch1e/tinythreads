@@ -83,7 +83,7 @@ q
                       : "border-periwinkle dark:border-border bg-white dark:bg-[#1a2332] text-gray-700 dark:text-[#b6ccfe]"
                   }`}
                 >
-                  <span className="text-2xl">{cfg.icon}</span>
+                  <img className="text-2xl" src={cfg.icon} width={50} height={50}></img>
                   <span className="font-medium text-sm">{cfg.displayName}</span>
                 </button>
               );

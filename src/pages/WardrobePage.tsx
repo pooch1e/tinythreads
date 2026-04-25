@@ -54,7 +54,7 @@ export default function WardrobePage() {
   if (items.length === 0) {
     return (
       <div className="flex flex-col h-full">
-        <div className="flex items-center justify-between px-4 py-4 border-b border-lavender-2 dark:border-border">
+        <div className="relative flex items-center justify-center px-4 py-4 border-b border-lavender-2 dark:border-border">
           <h1 className="text-3xl font-semibold text-gray-800 dark:text-[#edf2fb]">
             Wardrobe
           </h1>
