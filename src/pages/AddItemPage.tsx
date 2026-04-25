@@ -37,7 +37,7 @@ export default function AddItemPage() {
     if (!file || !selectedType) return;
 
     try {
-      await addItem(file, selectedType, selectedSize ?? undefined, selectedColour ?? undefined);
+      await addItem(file, selectedType, selectedSize ?? undefined, selectedPattern ?? undefined, selectedColour ?? undefined );
       navigate("/wardrobe", { replace: true });
     } catch {
       setError("Failed to save the photo. Please try again.");
