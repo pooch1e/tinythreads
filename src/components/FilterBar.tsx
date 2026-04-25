@@ -31,8 +31,8 @@ export default function FilterBar({
       </div>
 
       {/* Pattern row */}
-      <div className="flex items-center gap-2 px-4 py-2 overflow-x-auto no-scrollbar">
-        <span className="text-xs font-semibold text-gray-400 dark:text-text-muted shrink-0">Pattern</span>
+      <div className="flex flex-col gap-2 px-4 py-2 overflow-x-auto no-scrollbar">
+        <h2 className="text-sm font-semibold text-gray-400 dark:text-text-muted">Pattern</h2>
         <PatternPicker value={activePattern} onChange={onPatternChange} />
       </div>
 

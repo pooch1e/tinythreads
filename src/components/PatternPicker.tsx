@@ -8,7 +8,7 @@ interface PatternPickerProps {
 
 export function PatternPicker({ value, onChange }: PatternPickerProps) {
   return (
-    <div className="flex flex-wrap gap-2 p-2 rounded-2xl bg-[#edf2fb] dark:bg-[#1a2332]">
+    <div className="flex flex-wrap gap-2 rounded-2xl bg-[#edf2fb] dark:bg-[#1a2332]">
       {PATTERNS.map((p) => {
         const pattern: ClothingPattern = { name: p };
         const active = value?.name === pattern.name;
