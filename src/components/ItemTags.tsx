@@ -1,4 +1,4 @@
-import type { ClothingItem } from '@/types';
+import type { ClothingItem } from "@/types";
 
 interface ItemTagsProps {
   item: ClothingItem;
@@ -14,6 +14,11 @@ export default function ItemTags({ item }: ItemTagsProps) {
       {item.size && (
         <span className="text-[10px] font-medium bg-[#edf2fb] dark:bg-[#1a2332] text-[#3b5bdb] dark:text-[#b6ccfe] px-1.5 py-0.5 rounded-full leading-none">
           {item.size}
+        </span>
+      )}
+      {item.pattern && (
+        <span className="text-[10px] font-medium bg-[#edf2fb] dark:bg-[#1a2332] text-[#3b5bdb] dark:text-[#b6ccfe] px-1.5 py-0.5 rounded-full leading-none">
+          {item.pattern.name}
         </span>
       )}
       {item.colour && (
