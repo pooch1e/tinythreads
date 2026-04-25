@@ -4,7 +4,6 @@ import type {
   ClothingType,
   BabySize,
   ClothingColour,
-  Patterns,
   ClothingPattern,
 } from "../types";
 import {
