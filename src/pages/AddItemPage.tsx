@@ -19,8 +19,11 @@ export default function AddItemPage() {
 
   const [selectedType, setSelectedType] = useState<ClothingType | null>(null);
   const [selectedSize, setSelectedSize] = useState<BabySize | null>(null);
-  const [selectedPattern, setSelectedPattern] = useState<ClothingPattern | null>(null);
-  const [selectedColour, setSelectedColour] = useState<ClothingColour | null>(null);
+  const [selectedPattern, setSelectedPattern] =
+    useState<ClothingPattern | null>(null);
+  const [selectedColour, setSelectedColour] = useState<ClothingColour | null>(
+    null,
+  );
   const [error, setError] = useState<string | null>(null);
 
   const handleChoosePhoto = () => {
@@ -37,7 +40,13 @@ export default function AddItemPage() {
     if (!file || !selectedType) return;
 
     try {
-      await addItem(file, selectedType, selectedSize ?? undefined, selectedPattern ?? undefined, selectedColour ?? undefined );
+      await addItem(
+        file,
+        selectedType,
+        selectedSize ?? undefined,
+        selectedPattern ?? undefined,
+        selectedColour ?? undefined,
+      );
       navigate("/wardrobe", { replace: true });
     } catch {
       setError("Failed to save the photo. Please try again.");
@@ -61,8 +70,7 @@ export default function AddItemPage() {
           Add clothing item
         </h1>
       </div>
-q
-      {/* Scrollable form */}
+      q{/* Scrollable form */}
       <div className="flex-1 overflow-y-auto px-4 py-5 space-y-7">
         {/* Category */}
         <section>
@@ -76,14 +84,22 @@ q
               return (
                 <button
                   key={type}
-                  onClick={() => { setSelectedType(type); setError(null); }}
+                  onClick={() => {
+                    setSelectedType(type);
+                    setError(null);
+                  }}
                   className={`flex items-center gap-3 px-4 py-3 rounded-2xl border-2 transition-[colors,transform] duration-150 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#abc4ff]/50 ${
                     active
                       ? "border-[#abc4ff] bg-[#edf2fb] text-[#3b5bdb] dark:bg-[#1a2442] dark:text-[#abc4ff] dark:border-[#abc4ff]"
                       : "border-periwinkle dark:border-border bg-white dark:bg-[#1a2332] text-gray-700 dark:text-[#b6ccfe]"
                   }`}
                 >
-                  <img className="text-2xl" src={cfg.icon} width={50} height={50}></img>
+                  <img
+                    className="border-none block"
+                    src={cfg.icon}
+                    width={50}
+                    height={50}
+                  ></img>
                   <span className="font-medium text-sm">{cfg.displayName}</span>
                 </button>
               );
@@ -95,7 +111,9 @@ q
         <section>
           <h2 className="text-sm font-semibold text-gray-500 dark:text-[#b6ccfe] uppercase tracking-wide mb-3">
             Size{" "}
-            <span className="text-gray-400 dark:text-text-muted font-normal normal-case">(optional)</span>
+            <span className="text-gray-400 dark:text-text-muted font-normal normal-case">
+              (optional)
+            </span>
           </h2>
           <SizePicker value={selectedSize} onChange={setSelectedSize} />
         </section>
@@ -104,16 +122,23 @@ q
         <section>
           <h2 className="text-sm font-semibold text-gray-500 dark:text-[#b6ccfe] uppercase tracking-wide mb-3">
             Pattern{" "}
-            <span className="text-gray-400 dark:text-text-muted font-normal normal-case">(optional)</span>
+            <span className="text-gray-400 dark:text-text-muted font-normal normal-case">
+              (optional)
+            </span>
           </h2>
-          <PatternPicker value={selectedPattern} onChange={setSelectedPattern} />
+          <PatternPicker
+            value={selectedPattern}
+            onChange={setSelectedPattern}
+          />
         </section>
 
         {/* Colour */}
         <section>
           <h2 className="text-sm font-semibold text-gray-500 dark:text-[#b6ccfe] uppercase tracking-wide mb-3">
             Colour{" "}
-            <span className="text-gray-400 dark:text-text-muted font-normal normal-case">(optional)</span>
+            <span className="text-gray-400 dark:text-text-muted font-normal normal-case">
+              (optional)
+            </span>
           </h2>
           <ColourPicker value={selectedColour} onChange={setSelectedColour} />
           {selectedColour && (
@@ -133,7 +158,6 @@ q
           </p>
         )}
       </div>
-
       {/* Footer CTA */}
       <div className="px-4 py-4 border-t border-lavender-2 dark:border-border">
         <button
@@ -148,7 +172,6 @@ q
           {isAdding ? "Adding to wardrobe…" : "📷  Choose photo"}
         </button>
       </div>
-
       {/* Hidden file input */}
       <input
         ref={fileInputRef}

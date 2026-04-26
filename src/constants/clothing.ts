@@ -15,21 +15,31 @@ export const CLOTHING_CONFIG: Record<
   hat: {
     displayName: "Hat",
     pluralName: "Hats",
-    icon: "/assets/icons/items/beanie.png",
+    icon: "/assets/icons/items/colour/beanieIcon.png",
     order: 0,
   },
   outer: {
     displayName: "Outer",
     pluralName: "Outer",
-    icon: "",
+    icon: "/assets/icons/items/colour/outersGreen.png",
     order: 1,
   },
-  top: { displayName: "Top", pluralName: "Tops", icon: '/assets/icons/items/top.png', order: 2 },
+  top: {
+    displayName: "Top",
+    pluralName: "Tops",
+    icon: "/assets/icons/items/colour/top.png",
+    order: 2,
+  },
   bottoms: {
     displayName: "Bottoms",
     pluralName: "Bottoms",
-    icon: "👖",
+    icon: "/assets/icons/items/colour/bottomsYellow.png",
     order: 3,
   },
-  shoes: { displayName: "Shoes", pluralName: "Shoes", icon: "🧦", order: 4 },
+  shoes: {
+    displayName: "Shoes",
+    pluralName: "Shoes",
+    icon: "/assets/icons/items/colour/socksBlue.png",
+    order: 4,
+  },
 };
