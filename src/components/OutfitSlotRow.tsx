@@ -51,7 +51,13 @@ export default function OutfitSlotRow({
     <div className="flex items-center gap-4 px-4 py-3 border-b border-[#d7e3fc] dark:border-[#263352] last:border-b-0">
       {/* Type label */}
       <div className="flex flex-col items-center gap-1 w-14 flex-shrink-0">
-        <span className="text-2xl">{cfg.icon}</span>
+        <span className="text-2xl">
+          {cfg.icon.startsWith('/') || cfg.icon.startsWith('http') ? (
+            <img src={cfg.icon} alt="" className="w-8 h-8 object-contain" />
+          ) : (
+            cfg.icon
+          )}
+        </span>
         <span className="text-[10px] font-semibold text-gray-400 dark:text-[#7a90c0] uppercase tracking-wide">
           {cfg.displayName}
         </span>
@@ -64,7 +70,13 @@ export default function OutfitSlotRow({
       >
         {items.length === 0 ? (
           <div className="w-[100px] h-[100px] rounded-2xl border-2 border-dashed border-[#ccdbfd] dark:border-[#263352] flex items-center justify-center text-[#b6ccfe] dark:text-[#263352]">
-            <span className="text-3xl">{cfg.icon}</span>
+            <span className="text-3xl">
+              {cfg.icon.startsWith('/') || cfg.icon.startsWith('http') ? (
+                <img src={cfg.icon} alt="" className="w-10 h-10 object-contain opacity-20 grayscale" />
+              ) : (
+                cfg.icon
+              )}
+            </span>
           </div>
         ) : (
           <AnimatePresence mode="wait" initial={false} custom={dragDirection}>

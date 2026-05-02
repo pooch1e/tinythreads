@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import { useWardrobe } from "@/hooks/useWardrobe";
 import { CLOTHING_TYPES, CLOTHING_CONFIG } from "@/constants/clothing";
 import type {
@@ -7,11 +8,13 @@ import type {
   ClothingColour,
   ClothingItem,
   ClothingPattern,
+  ClothingType,
 } from "@/types";
-import ClothingCard from "@/components/ClothingCard";
 import FilterBar from "@/components/FilterBar";
 import EmptyState from "@/components/EmptyState";
 import ConfirmDeleteSheet from "@/components/ConfirmDeleteSheet";
+import CategoryFolder from "@/components/CategoryFolder";
+import CategoryDetailModal from "@/components/CategoryDetailModal";
 import { groupItemsByType } from "@/utils/clothing";
 
 export default function WardrobePage() {
@@ -24,6 +27,9 @@ export default function WardrobePage() {
     null,
   );
   const [pendingDelete, setPendingDelete] = useState<ClothingItem | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<ClothingType | null>(
+    null,
+  );
 
   const filteredItems = useMemo(() => {
     return items.filter((item) => {
@@ -35,15 +41,8 @@ export default function WardrobePage() {
     });
   }, [items, activeSize, activeColour, activePattern]);
 
-  const sections = useMemo(() => {
-    const byType = groupItemsByType(filteredItems);
-    return CLOTHING_TYPES.map((type) => ({
-      type,
-      cfg: CLOTHING_CONFIG[type],
-      items: byType[type],
-      totalCount: items.filter((i) => i.type === type).length,
-    })).filter((s) => s.totalCount > 0);
-  }, [filteredItems, items]);
+  const itemsByType = useMemo(() => groupItemsByType(filteredItems), [filteredItems]);
+  const totalItemsByType = useMemo(() => groupItemsByType(items), [items]);
 
   const handleDeleteConfirm = async () => {
     if (!pendingDelete) return;
@@ -71,9 +70,9 @@ export default function WardrobePage() {
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full bg-[#f8faff] dark:bg-[#0d1117]">
       {/* Header */}
-      <div className="relative flex items-center justify-center px-4 py-4 border-b border-lavender-2 dark:border-border">
+      <div className="relative flex items-center justify-center px-4 py-4 border-b border-lavender-2 dark:border-border bg-white dark:bg-[#0d1117]">
         <h1 className="text-3xl font-semibold text-gray-800 dark:text-[#edf2fb]">
           Wardrobe
         </h1>
@@ -98,66 +97,51 @@ export default function WardrobePage() {
         onPatternChange={setActivePattern}
       />
 
-      {/* Sections */}
-      <div className="flex-1 overflow-y-auto">
-        {sections.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full gap-3 text-center px-6 pb-16">
-            <span className="text-4xl">🔍</span>
-            <p className="text-sm text-gray-400 dark:text-text-muted">
-              No items match the current filters.
-            </p>
-            <button
-              onClick={() => {
-                setActiveSize(null);
-                setActiveColour(null);
-                setActivePattern(null);
+      {/* Folders Grid */}
+      <div className="flex-1 overflow-y-auto px-6 py-6">
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={{
+            hidden: { opacity: 0 },
+            visible: {
+              opacity: 1,
+              transition: {
+                staggerChildren: 0.1,
+              },
+            },
+          }}
+          className="grid grid-cols-2 gap-4 pb-12"
+        >
+          {CLOTHING_TYPES.map((type) => (
+            <motion.div
+              key={type}
+              variants={{
+                hidden: { opacity: 0, y: 20 },
+                visible: { opacity: 1, y: 0 },
               }}
-              className="text-sm text-[#abc4ff] font-medium active:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#abc4ff]/50 rounded"
             >
-              Clear filters
-            </button>
-          </div>
-        ) : (
-          sections.map((section) => (
-            <div
-              key={section.type}
-              className="px-4 py-4 border-b border-[#edf2fb] dark:border-[#1a2332] last:border-b-0"
-            >
-              {/* Section header */}
-              <div className="flex items-center gap-2 mb-3">
-                <span className="text-xl">{section.cfg.icon}</span>
-                <h2 className="text-sm font-semibold text-gray-700 dark:text-lavender-2">
-                  {section.cfg.pluralName}
-                </h2>
-                <span className="text-xs text-gray-400 dark:text-text-muted font-medium">
-                  {section.items.length}
-                  {section.items.length !== section.totalCount && (
-                    <span> of {section.totalCount}</span>
-                  )}
-                </span>
-              </div>
-
-              {/* Cards row */}
-              {section.items.length > 0 ? (
-                <div className="flex flex-wrap gap-3">
-                  {section.items.map((item) => (
-                    <ClothingCard
-                      key={item.id}
-                      item={item}
-                      onDelete={() => setPendingDelete(item)}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <p className="text-xs text-gray-400 dark:text-text-muted italic">
-                  No {section.cfg.pluralName.toLowerCase()} match the current
-                  filters.
-                </p>
-              )}
-            </div>
-          ))
-        )}
+              <CategoryFolder
+                type={type}
+                count={totalItemsByType[type]?.length || 0}
+                onClick={() => setSelectedCategory(type)}
+              />
+            </motion.div>
+          ))}
+        </motion.div>
       </div>
+
+      {/* Category Detail Modal */}
+      <CategoryDetailModal
+        type={selectedCategory || "top"}
+        items={selectedCategory ? itemsByType[selectedCategory] || [] : []}
+        isOpen={!!selectedCategory}
+        onClose={() => setSelectedCategory(null)}
+        onDeleteItem={(id) => {
+          const item = items.find((i) => i.id === id);
+          if (item) setPendingDelete(item);
+        }}
+      />
 
       {pendingDelete && (
         <ConfirmDeleteSheet

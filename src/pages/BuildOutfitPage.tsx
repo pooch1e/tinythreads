@@ -63,7 +63,7 @@ export default function BuildOutfitPage() {
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="px-4 py-4 border-b border-[#d7e3fc] dark:border-[#263352]">
-        <h1 className="text-lg font-semibold text-gray-800 dark:text-[#edf2fb]">Build Outfit</h1>
+        <h1 className="text-3xl font-semibold text-gray-800 dark:text-[#edf2fb]">Build Outfit</h1>
         <p className="text-xs text-gray-400 dark:text-[#7a90c0] mt-0.5">Swipe each row to change the item</p>
       </div>
 

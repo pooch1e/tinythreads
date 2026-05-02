@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { motion } from 'framer-motion';
 import type { SavedLook, ClothingItem, ClothingType } from '@/types';
 import { CLOTHING_TYPES, CLOTHING_CONFIG } from '@/constants/clothing';
 import { useSingleImage } from '@/hooks/useSingleImage';
@@ -17,9 +18,22 @@ function GridSlot({ type, item }: { type: ClothingType; item: ClothingItem | und
   return (
     <div className="w-full aspect-square rounded-lg overflow-hidden bg-[#edf2fb] dark:bg-[#1a2332] flex items-center justify-center">
       {item && url ? (
-        <img src={url} alt={type} className="w-full h-full object-cover" draggable={false} />
+        <motion.img
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          src={url}
+          alt={type}
+          className="w-full h-full object-cover"
+          draggable={false}
+        />
       ) : (
-        <span className="text-2xl opacity-25">{cfg.icon}</span>
+        <span className="text-2xl opacity-25">
+          {cfg.icon.startsWith('/') || cfg.icon.startsWith('http') ? (
+            <img src={cfg.icon} alt="" className="w-8 h-8 object-contain grayscale" />
+          ) : (
+            cfg.icon
+          )}
+        </span>
       )}
     </div>
   );
@@ -35,20 +49,25 @@ export default function LookCard({ look, allItems, onDelete }: LookCardProps) {
   });
 
   return (
-    <div className="bg-white dark:bg-[#111827] rounded-2xl border border-[#d7e3fc] dark:border-[#263352] shadow-sm overflow-hidden">
+    <motion.div
+      whileHover={{ scale: 1.01 }}
+      className="bg-white dark:bg-[#111827] rounded-2xl border border-[#d7e3fc] dark:border-[#263352] shadow-sm overflow-hidden"
+    >
       {/* Card header */}
       <div className="flex items-center justify-between px-4 pt-4 pb-2">
         <div>
           <h3 className="font-semibold text-gray-800 dark:text-[#edf2fb] text-sm leading-tight">{look.name}</h3>
           <p className="text-[11px] text-gray-400 dark:text-[#7a90c0] mt-0.5">{date}</p>
         </div>
-        <button
+        <motion.button
+          whileHover={{ scale: 1.1, color: '#ef4444' }}
+          whileTap={{ scale: 0.9 }}
           onClick={() => onDelete(look.id)}
           className="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 dark:text-[#7a90c0] active:text-red-500 active:bg-red-50 dark:active:bg-red-950 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#abc4ff]/50"
           aria-label="Delete outfit"
         >
           🗑
-        </button>
+        </motion.button>
       </div>
 
       {/* 2×2 image grid */}
@@ -59,6 +78,6 @@ export default function LookCard({ look, allItems, onDelete }: LookCardProps) {
           return <GridSlot key={type} type={type} item={item} />;
         })}
       </div>
-    </div>
+    </motion.div>
   );
 }

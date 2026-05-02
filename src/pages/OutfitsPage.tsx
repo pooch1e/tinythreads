@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useLooks } from '@/hooks/useLooks';
 import { useWardrobe } from '@/hooks/useWardrobe';
 import type { SavedLook } from '@/types';
@@ -24,7 +25,7 @@ export default function OutfitsPage() {
     return (
       <div className="flex flex-col h-full">
         <div className="px-4 py-4 border-b border-[#d7e3fc] dark:border-[#263352]">
-          <h1 className="text-lg font-semibold text-gray-800 dark:text-[#edf2fb]">Outfits</h1>
+          <h1 className="text-3xl font-semibold text-gray-800 dark:text-[#edf2fb]">Outfits</h1>
         </div>
         <EmptyState
           icon="📸"
@@ -41,7 +42,7 @@ export default function OutfitsPage() {
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-4 border-b border-[#d7e3fc] dark:border-[#263352]">
-        <h1 className="text-lg font-semibold text-gray-800 dark:text-[#edf2fb]">Outfits</h1>
+        <h1 className="text-3xl font-semibold text-gray-800 dark:text-[#edf2fb]">Outfits</h1>
         <span className="text-xs text-gray-400 dark:text-[#7a90c0] font-medium">
           {looks.length} / {MAX_LOOKS}
         </span>
@@ -49,14 +50,24 @@ export default function OutfitsPage() {
 
       {/* List */}
       <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
-        {looks.map((look) => (
-          <LookCard
-            key={look.id}
-            look={look}
-            allItems={items}
-            onDelete={() => setPendingDelete(look)}
-          />
-        ))}
+        <AnimatePresence mode="popLayout">
+          {looks.map((look) => (
+            <motion.div
+              key={look.id}
+              layout
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.8, x: -20 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            >
+              <LookCard
+                look={look}
+                allItems={items}
+                onDelete={() => setPendingDelete(look)}
+              />
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </div>
 
       {pendingDelete && (

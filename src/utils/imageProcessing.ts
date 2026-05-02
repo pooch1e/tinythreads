@@ -1,8 +1,8 @@
 import { removeBgAsync } from "./removeBg";
 import { loadImage, canvasToBlob } from "./canvasUtils";
 
-const FINAL_MAX_WIDTH = 1024;
-const WORKER_MAX_WIDTH = 800;
+const FINAL_MAX_WIDTH = 800;
+const WORKER_MAX_WIDTH = 600;
 const WORKER_JPEG_QUALITY = 0.85;
 
 async function resizeImage(

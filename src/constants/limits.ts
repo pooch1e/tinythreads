@@ -1,1 +1,1 @@
-export const MAX_LOOKS = 10;
+export const MAX_LOOKS = 50;
