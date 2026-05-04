@@ -5,12 +5,14 @@ import type { ClothingType } from "@/types";
 interface CategoryFolderProps {
   type: ClothingType;
   count: number;
+  isFiltered: boolean;
   onClick: () => void;
 }
 
 export default function CategoryFolder({
   type,
   count,
+  isFiltered,
   onClick,
 }: CategoryFolderProps) {
   const cfg = CLOTHING_CONFIG[type];
@@ -29,6 +31,10 @@ export default function CategoryFolder({
           <span className="text-4xl">{cfg.icon}</span>
         )}
       </div>
+
+      {isFiltered && (
+        <div className="absolute top-4 right-4 w-3 h-3 bg-[#abc4ff] rounded-full border border-white dark:border-[#1a2332] shadow-sm" aria-label="Has filtered items" />
+      )}
 
       <div className="flex flex-col items-center">
         <span className="text-sm font-bold text-gray-700 dark:text-lavender-2">

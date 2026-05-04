@@ -31,6 +31,8 @@ export default function WardrobePage() {
     null,
   );
 
+  const isFilterActive = activeSize !== null || activeColour !== null || activePattern !== null;
+
   const filteredItems = useMemo(() => {
     return items.filter((item) => {
       if (activeSize && item.size !== activeSize) return false;
@@ -113,7 +115,9 @@ export default function WardrobePage() {
           }}
           className="grid grid-cols-2 gap-4 pb-12"
         >
-          {CLOTHING_TYPES.map((type) => (
+          {CLOTHING_TYPES.map((type) => {
+            const hasFilteredItems = isFilterActive && (itemsByType[type]?.length || 0) > 0;
+            return (
             <motion.div
               key={type}
               variants={{
@@ -124,10 +128,11 @@ export default function WardrobePage() {
               <CategoryFolder
                 type={type}
                 count={totalItemsByType[type]?.length || 0}
+                isFiltered={hasFilteredItems}
                 onClick={() => setSelectedCategory(type)}
               />
             </motion.div>
-          ))}
+          )})}
         </motion.div>
       </div>
 
