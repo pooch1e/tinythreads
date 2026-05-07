@@ -1,5 +1,6 @@
 import { removeBgAsync } from "./removeBg";
 import { loadImage, canvasToBlob } from "./canvasUtils";
+import { normaliseFlatpack } from "./flatpack";
 
 const FINAL_MAX_WIDTH = 800;
 const WORKER_MAX_WIDTH = 600;
@@ -51,7 +52,8 @@ export async function removeImageBackground(file: File | Blob): Promise<Blob> {
       WORKER_JPEG_QUALITY,
     );
     const processed = await removeBgAsync(compressed);
-    return await resizeImage(processed, FINAL_MAX_WIDTH, "image/png");
+    const normalised = await normaliseFlatpack(processed);
+    return await resizeImage(normalised, FINAL_MAX_WIDTH, "image/png");
   } catch {
     return await resizeImage(file, FINAL_MAX_WIDTH, "image/png");
   }
