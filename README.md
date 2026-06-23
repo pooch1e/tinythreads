@@ -42,4 +42,6 @@ npm run dev
 
 ## License
 
+currently not finished/used 
+
 MIT
