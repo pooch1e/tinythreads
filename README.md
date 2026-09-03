@@ -43,5 +43,6 @@ npm run dev
 ## License
 
 currently not finished/used 
+baby was born today :) Arte 03.09.2026
 
 MIT
