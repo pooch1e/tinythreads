@@ -1,13 +1,12 @@
+/**
+ * vite.config — Vite build config: React, Tailwind v4, PWA manifest and
+ * service worker, the `@/` → src alias, and ES-module web workers.
+ */
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { VitePWA } from "vite-plugin-pwa";
 import { resolve } from "path";
-
-const crossOriginHeaders = {
-  "Cross-Origin-Opener-Policy": "same-origin",
-  "Cross-Origin-Embedder-Policy": "require-corp",
-};
 
 export default defineConfig({
   plugins: [
@@ -15,7 +14,7 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["favicon.ico", "apple-touch-icon.png", "icons/*.png"],
+      includeAssets: ["icons/*.png"],
       manifest: {
         name: "TinyThreads",
         short_name: "TinyThreads",
@@ -41,9 +40,6 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
-        // Required: service worker must also forward these headers
-        additionalManifestEntries: [],
-        runtimeCaching: [],
       },
     }),
   ],
@@ -54,11 +50,5 @@ export default defineConfig({
   },
   worker: {
     format: "es",
-  },
-  server: {
-    headers: crossOriginHeaders,
-  },
-  preview: {
-    headers: crossOriginHeaders,
   },
 });

@@ -1,97 +1,87 @@
+/**
+ * index.css — Tailwind entry point, semantic colour tokens (light values in
+ * @theme, dark overrides on :root), and the fixed mobile shell + bottom nav.
+ */
 @import "tailwindcss";
 
-/* ── Design Tokens ────────────────────────────────────────── */
-
 @theme {
-  /* ── Brand palette ──────────────────────────────────────── */
-  /* alice-blue → lavender → periwinkle → baby-blue-ice       */
-  --color-alice-blue: #edf2fb;
-  --color-lavender: #e2eafc;
-  --color-lavender-2: #d7e3fc;
-  --color-periwinkle: #ccdbfd;
-  --color-periwinkle-2: #c1d3fe;
-  --color-periwinkle-3: #b6ccfe;
-  --color-baby-blue: #abc4ff;
-
-  /* Primary — baby-blue-ice as accent */
-  --color-primary: #abc4ff;
-  --color-primary-hover: #92aaee;
-  --color-primary-surface: #edf2fb;
-  --color-primary-border: #ccdbfd;
-
-  /* Surfaces */
-  --color-surface: #edf2fb;
-  --color-surface-subtle: #f8faff;
+  --color-bg: #f8faff;
+  --color-surface: #ffffff;
   --color-surface-muted: #edf2fb;
-  --color-bg: #edf2fb;
+  --color-surface-raised: #ffffff;
 
-  /* Borders */
   --color-border: #d7e3fc;
   --color-border-subtle: #edf2fb;
+  --color-border-strong: #ccdbfd;
 
-  /* Text */
-  --color-text: #1a1f2e;
-  --color-text-secondary: #4a5568;
-  --color-text-muted: #718096;
+  --color-primary: #abc4ff;
+  --color-primary-hover: #92aaee;
+  --color-on-primary: #1a2b5c;
+  --color-primary-surface: #edf2fb;
+  --color-primary-text: #3b5bdb;
 
-  /* Semantic */
+  --color-fg: #1f2937;
+  --color-fg-secondary: #4b5563;
+  --color-fg-muted: #6b7280;
+  --color-fg-disabled: #9ca3af;
+  --color-placeholder: #b6ccfe;
+
   --color-error: #ef4444;
+  --color-error-hover: #dc2626;
+  --color-error-text: #dc2626;
   --color-error-surface: #fef2f2;
-  --color-warning: #d97706;
+  --color-warning-text: #b45309;
   --color-warning-surface: #fffbeb;
 
-  /* Typography */
   --font-sans:
     -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
     Arial, sans-serif;
 
-  /* Border radius */
-  --radius-sm: 0.5rem;
-  --radius-md: 1rem;
-  --radius-lg: 1.5rem;
-  --radius-full: 9999px;
-
-  /* Motion */
   --duration-fast: 150ms;
-  --duration-normal: 200ms;
   --ease-default: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* ── Dark mode token overrides ───────────────────────────── */
-/* Deep navy surfaces — periwinkle accent stays vivid         */
-
+/*
+ * Tailwind v4 hoists any @theme block out of an enclosing @media, so dark
+ * values must be plain custom-property overrides. This block is unlayered,
+ * which lets it beat Tailwind's @layer theme defaults.
+ */
 @media (prefers-color-scheme: dark) {
-  @theme {
-    --color-primary: #abc4ff;
-    --color-primary-hover: #c1d3fe;
-    --color-primary-surface: #edf2fb;
-    --color-primary-border: #2d3f6b;
-
-    --color-surface: #edf2fb;
-    --color-surface-subtle: #1a2332;
-    --color-surface-muted: #1a2332;
+  :root {
     --color-bg: #0d1117;
+    --color-surface: #111827;
+    --color-surface-muted: #1a2332;
+    --color-surface-raised: #263352;
 
     --color-border: #263352;
     --color-border-subtle: #1a2332;
+    --color-border-strong: #263352;
 
-    --color-text: #edf2fb;
-    --color-text-secondary: #b6ccfe;
-    --color-text-muted: #7a90c0;
+    --color-primary-hover: #c1d3fe;
+    --color-on-primary: #0d1117;
+    --color-primary-surface: #1a2442;
+    --color-primary-text: #abc4ff;
+
+    --color-fg: #edf2fb;
+    --color-fg-secondary: #b6ccfe;
+    --color-fg-muted: #7a90c0;
+    --color-fg-disabled: #3a4a6a;
+    --color-placeholder: #263352;
+
+    --color-error-text: #f87171;
+    --color-error-surface: #450a0a;
+    --color-warning-text: #fbbf24;
+    --color-warning-surface: #451a03;
   }
 }
-
-/* ── Base ─────────────────────────────────────────────────── */
 
 @layer base {
   body {
     font-family: var(--font-sans);
     background: var(--color-bg);
-    color: var(--color-text);
+    color: var(--color-fg);
   }
 }
-
-/* ── Mobile shell ─────────────────────────────────────────── */
 
 html,
 body,
@@ -101,8 +91,9 @@ body,
   margin: 0;
   padding: 0;
   background: var(--color-bg);
-  overflow: hidden; /* Prevent native bounce/elastic scroll on the body */
-  position: fixed; /* Lock body */
+  /* Locks the page so iOS doesn't rubber-band the whole app; only .app-content scrolls. */
+  overflow: hidden;
+  position: fixed;
 }
 
 .app-shell {
@@ -112,19 +103,17 @@ body,
   width: 100%;
   max-width: 430px;
   margin: 0 auto;
-  background: var(--color-surface);
+  background: var(--color-bg);
   position: relative;
-  overflow: hidden; /* Lock the shell */
+  overflow: hidden;
 }
 
 .app-content {
   flex: 1;
-  overflow-y: auto; /* Only allow content area to scroll */
+  overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  overscroll-behavior-y: contain; /* Prevent scroll chaining to body */
+  overscroll-behavior-y: contain;
 }
-
-/* ── Utilities ───────────────────────────────────────────── */
 
 .no-scrollbar {
   -ms-overflow-style: none;
@@ -133,8 +122,6 @@ body,
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
-
-/* ── Bottom navigation ────────────────────────────────────── */
 
 .bottom-nav {
   display: flex;
@@ -152,13 +139,13 @@ body,
   justify-content: center;
   padding: 10px 0;
   text-decoration: none;
-  color: var(--color-text-muted);
+  color: var(--color-fg-muted);
   transition: color var(--duration-fast) var(--ease-default);
   gap: 2px;
 }
 
 .bottom-nav-item.active {
-  color: var(--color-primary);
+  color: var(--color-primary-text);
 }
 
 .bottom-nav-icon {

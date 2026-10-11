@@ -1,11 +1,15 @@
-import { useState, useCallback } from 'react';
-import type { SavedLook, ClothingType } from '../types';
-import { MAX_LOOKS } from '../constants/limits';
+/**
+ * useLooks — owns the saved outfits ("looks") list: adding, deleting, and
+ * reporting when the saved-outfit limit has been reached.
+ */
+import { useState, useCallback } from "react";
+import type { SavedLook, ClothingType } from "@/types";
+import { MAX_LOOKS } from "@/constants/limits";
 import {
   loadLooks,
   addLookToStorage,
   removeLookFromStorage,
-} from '../storage/metadata';
+} from "@/storage/metadata";
 
 export function useLooks() {
   const [looks, setLooks] = useState<SavedLook[]>(() => loadLooks());

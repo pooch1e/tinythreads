@@ -1,9 +1,13 @@
-import { NavLink, Outlet } from 'react-router-dom';
+/**
+ * App — the mobile shell: a scrollable content area for the active route and
+ * a fixed three-tab bottom navigation.
+ */
+import { NavLink, Outlet } from "react-router-dom";
 
 const tabs = [
-  { to: '/wardrobe', label: 'Wardrobe', icon: '👗' },
-  { to: '/build',    label: 'Build',    icon: '✨' },
-  { to: '/outfits',  label: 'Outfits',  icon: '📸' },
+  { to: "/wardrobe", label: "Wardrobe", icon: "👗" },
+  { to: "/build",    label: "Build",    icon: "✨" },
+  { to: "/outfits",  label: "Outfits",  icon: "📸" },
 ];
 
 export default function App() {
@@ -19,10 +23,10 @@ export default function App() {
             key={tab.to}
             to={tab.to}
             className={({ isActive }) =>
-              `bottom-nav-item ${isActive ? 'active' : ''}`
+              `bottom-nav-item ${isActive ? "active" : ""}`
             }
           >
-            <span className="bottom-nav-icon">{tab.icon}</span>
+            <span className="bottom-nav-icon" aria-hidden="true">{tab.icon}</span>
             <span className="bottom-nav-label">{tab.label}</span>
           </NavLink>
         ))}

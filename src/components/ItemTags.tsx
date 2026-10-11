@@ -1,30 +1,25 @@
+/**
+ * ItemTags — size, pattern and colour pills for a clothing item. Renders a
+ * fragment so the parent controls layout.
+ */
 import type { ClothingItem } from "@/types";
 
 interface ItemTagsProps {
   item: ClothingItem;
 }
 
-/**
- * Renders size and colour tag pills for a clothing item.
- * Used in ClothingCard and OutfitSlotRow.
- */
+const TAG =
+  "inline-flex items-center gap-1 text-[10px] font-medium bg-surface-muted text-primary-text px-1.5 py-0.5 rounded-full leading-none";
+
 export default function ItemTags({ item }: ItemTagsProps) {
   return (
     <>
-      {item.size && (
-        <span className="text-[10px] font-medium bg-[#edf2fb] dark:bg-[#1a2332] text-[#3b5bdb] dark:text-[#b6ccfe] px-1.5 py-0.5 rounded-full leading-none">
-          {item.size}
-        </span>
-      )}
-      {item.pattern && (
-        <span className="text-[10px] font-medium bg-[#edf2fb] dark:bg-[#1a2332] text-[#3b5bdb] dark:text-[#b6ccfe] px-1.5 py-0.5 rounded-full leading-none">
-          {item.pattern.name}
-        </span>
-      )}
+      {item.size && <span className={TAG}>{item.size}</span>}
+      {item.pattern && <span className={`${TAG} capitalize`}>{item.pattern.name}</span>}
       {item.colour && (
-        <span className="inline-flex items-center gap-1 text-[10px] font-medium bg-[#edf2fb] dark:bg-[#1a2332] text-[#3b5bdb] dark:text-[#b6ccfe] px-1.5 py-0.5 rounded-full leading-none">
+        <span className={TAG}>
           <span
-            className="w-2 h-2 rounded-full flex-shrink-0 border border-[#ccdbfd] dark:border-[#263352]"
+            className="w-2 h-2 rounded-full shrink-0 border border-border-strong"
             style={{ backgroundColor: item.colour.hex }}
           />
           {item.colour.name}

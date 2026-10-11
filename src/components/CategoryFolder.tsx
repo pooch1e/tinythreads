@@ -1,51 +1,59 @@
+/**
+ * CategoryFolder — tappable wardrobe tile for one clothing category, showing
+ * its icon and item count. While filters are active it shows how many items
+ * match, plus a dot when there is at least one match.
+ */
 import { motion } from "framer-motion";
 import { CLOTHING_CONFIG } from "@/constants/clothing";
+import { FOCUS_RING } from "@/constants/styles";
 import type { ClothingType } from "@/types";
+import { formatItemCount } from "@/utils/clothing";
+import CategoryIcon from "@/components/CategoryIcon";
 
 interface CategoryFolderProps {
   type: ClothingType;
-  count: number;
-  isFiltered: boolean;
+  totalCount: number;
+  matchCount: number;
+  isFilterActive: boolean;
   onClick: () => void;
 }
 
 export default function CategoryFolder({
   type,
-  count,
-  isFiltered,
+  totalCount,
+  matchCount,
+  isFilterActive,
   onClick,
 }: CategoryFolderProps) {
   const cfg = CLOTHING_CONFIG[type];
+  const countLabel = isFilterActive
+    ? `${matchCount} of ${totalCount} match`
+    : formatItemCount(totalCount);
 
   return (
     <motion.button
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.95 }}
       onClick={onClick}
-      className="relative flex flex-col items-center gap-3 p-6 rounded-[2.5rem] bg-[#edf2fb] dark:bg-[#1a2332] border-2 border-[#d7e3fc] dark:border-[#263352] transition-colors active:border-[#abc4ff] group w-full"
+      className={`relative flex flex-col items-center gap-3 p-6 rounded-[2.5rem] bg-surface-muted border-2 border-border transition-colors active:border-primary group w-full ${FOCUS_RING}`}
     >
-      <div className="w-16 h-16 flex items-center justify-center bg-white dark:bg-[#263352] rounded-3xl shadow-sm group-hover:shadow-md transition-shadow">
-        {cfg.icon.startsWith("/") || cfg.icon.startsWith("http") ? (
-          <img src={cfg.icon} alt="" className="w-10 h-10 object-contain" />
-        ) : (
-          <span className="text-4xl">{cfg.icon}</span>
-        )}
+      <div className="w-16 h-16 flex items-center justify-center bg-surface-raised rounded-3xl shadow-sm group-hover:shadow-md transition-shadow">
+        <CategoryIcon type={type} className="w-10 h-10" />
       </div>
 
-      {isFiltered && (
-        <div className="absolute top-4 right-4 w-3 h-3 bg-[#abc4ff] rounded-full border border-white dark:border-[#1a2332] shadow-sm" aria-label="Has filtered items" />
+      {isFilterActive && matchCount > 0 && (
+        <div
+          className="absolute top-4 right-4 w-3 h-3 bg-primary rounded-full border border-surface shadow-sm"
+          aria-hidden="true"
+        />
       )}
 
       <div className="flex flex-col items-center">
-        <span className="text-sm font-bold text-gray-700 dark:text-lavender-2">
-          {cfg.pluralName}
-        </span>
-        <span className="text-[10px] font-semibold text-gray-400 dark:text-[#7a90c0] uppercase tracking-wider">
-          {count} items
+        <span className="text-sm font-bold text-fg">{cfg.pluralName}</span>
+        <span className="text-[10px] font-semibold text-fg-muted uppercase tracking-wider">
+          {countLabel}
         </span>
       </div>
-
-      {/* Decorative folder tab effect could be added here, but keep it clean for now */}
     </motion.button>
   );
 }

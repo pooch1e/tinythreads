@@ -1,4 +1,6 @@
-// Utility functions for image/canvas processing
+/**
+ * canvasUtils — promise wrappers around image loading and canvas encoding.
+ */
 
 export function loadImage(src: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {

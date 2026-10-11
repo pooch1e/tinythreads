@@ -1,9 +1,11 @@
-import type { ClothingItem, ClothingType } from '@/types';
-import { CLOTHING_TYPES } from '@/constants/clothing';
+/**
+ * clothing — helpers for working with collections of clothing items.
+ */
+import type { ClothingItem, ClothingType } from "@/types";
+import { CLOTHING_TYPES } from "@/constants/clothing";
 
 /**
- * Groups an array of ClothingItems by type, returning a record keyed by
- * ClothingType. Every type in CLOTHING_TYPES is always present (may be []).
+ * Every type in CLOTHING_TYPES is always present in the result (possibly []).
  */
 export function groupItemsByType(
   items: ClothingItem[],
@@ -11,4 +13,8 @@ export function groupItemsByType(
   return Object.fromEntries(
     CLOTHING_TYPES.map((type) => [type, items.filter((i) => i.type === type)]),
   ) as Record<ClothingType, ClothingItem[]>;
+}
+
+export function formatItemCount(count: number): string {
+  return `${count} ${count === 1 ? "item" : "items"}`;
 }

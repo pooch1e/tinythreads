@@ -1,8 +1,14 @@
-import { useMemo } from 'react';
-import { motion } from 'framer-motion';
-import type { SavedLook, ClothingItem, ClothingType } from '@/types';
-import { CLOTHING_TYPES, CLOTHING_CONFIG } from '@/constants/clothing';
-import { useSingleImage } from '@/hooks/useSingleImage';
+/**
+ * LookCard — card for a saved outfit: name, save date, a delete button, and a
+ * one-row strip with a thumbnail (or greyed category icon) per clothing slot.
+ */
+import { useMemo } from "react";
+import { motion } from "framer-motion";
+import type { SavedLook, ClothingItem, ClothingType } from "@/types";
+import { CLOTHING_TYPES } from "@/constants/clothing";
+import { FOCUS_RING } from "@/constants/styles";
+import { useSingleImage } from "@/hooks/useSingleImage";
+import CategoryIcon from "@/components/CategoryIcon";
 
 interface LookCardProps {
   look: SavedLook;
@@ -10,13 +16,11 @@ interface LookCardProps {
   onDelete: (id: string) => void;
 }
 
-// One slot in the 2×2 image grid
-function GridSlot({ type, item }: { type: ClothingType; item: ClothingItem | undefined }) {
-  const cfg = CLOTHING_CONFIG[type];
-  const url = useSingleImage(item?.imageId);
+function SlotThumbnail({ type, item }: { type: ClothingType; item: ClothingItem | undefined }) {
+  const url = useSingleImage(item?.imageId, item?.processing ? "processing" : "ready");
 
   return (
-    <div className="w-full aspect-square rounded-lg overflow-hidden bg-[#edf2fb] dark:bg-[#1a2332] flex items-center justify-center">
+    <div className="w-full aspect-square rounded-xl overflow-hidden bg-surface-muted flex items-center justify-center">
       {item && url ? (
         <motion.img
           initial={{ opacity: 0, scale: 0.9 }}
@@ -27,13 +31,7 @@ function GridSlot({ type, item }: { type: ClothingType; item: ClothingItem | und
           draggable={false}
         />
       ) : (
-        <span className="text-2xl opacity-25">
-          {cfg.icon.startsWith('/') || cfg.icon.startsWith('http') ? (
-            <img src={cfg.icon} alt="" className="w-8 h-8 object-contain grayscale" />
-          ) : (
-            cfg.icon
-          )}
-        </span>
+        <CategoryIcon type={type} className="w-7 h-7 grayscale opacity-25" />
       )}
     </div>
   );
@@ -42,40 +40,38 @@ function GridSlot({ type, item }: { type: ClothingType; item: ClothingItem | und
 export default function LookCard({ look, allItems, onDelete }: LookCardProps) {
   const itemsById = useMemo(() => new Map(allItems.map((i) => [i.id, i])), [allItems]);
 
-  const date = new Date(look.createdAt).toLocaleDateString('en-GB', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
+  const date = new Date(look.createdAt).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
   });
 
   return (
     <motion.div
       whileHover={{ scale: 1.01 }}
-      className="bg-white dark:bg-[#111827] rounded-2xl border border-[#d7e3fc] dark:border-[#263352] shadow-sm overflow-hidden"
+      className="bg-surface rounded-2xl border border-border shadow-sm overflow-hidden"
     >
-      {/* Card header */}
-      <div className="flex items-center justify-between px-4 pt-4 pb-2">
+      <div className="flex items-center justify-between pl-4 pr-2 pt-2 pb-1">
         <div>
-          <h3 className="font-semibold text-gray-800 dark:text-[#edf2fb] text-sm leading-tight">{look.name}</h3>
-          <p className="text-[11px] text-gray-400 dark:text-[#7a90c0] mt-0.5">{date}</p>
+          <h3 className="font-semibold text-fg text-sm leading-tight">{look.name}</h3>
+          <p className="text-[11px] text-fg-muted mt-0.5">{date}</p>
         </div>
         <motion.button
-          whileHover={{ scale: 1.1, color: '#ef4444' }}
+          whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
           onClick={() => onDelete(look.id)}
-          className="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 dark:text-[#7a90c0] active:text-red-500 active:bg-red-50 dark:active:bg-red-950 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#abc4ff]/50"
-          aria-label="Delete outfit"
+          className={`w-11 h-11 rounded-full flex items-center justify-center text-fg-muted hover:text-error-text active:text-error-text active:bg-error-surface transition-colors ${FOCUS_RING}`}
+          aria-label={`Delete outfit ${look.name}`}
         >
           🗑
         </motion.button>
       </div>
 
-      {/* 2×2 image grid */}
-      <div className="grid grid-cols-2 gap-1.5 px-4 pb-4">
+      <div className="grid grid-cols-5 gap-1.5 px-4 pb-4">
         {CLOTHING_TYPES.map((type) => {
           const itemId = look.itemIds[type];
           const item = itemId ? itemsById.get(itemId) : undefined;
-          return <GridSlot key={type} type={type} item={item} />;
+          return <SlotThumbnail key={type} type={type} item={item} />;
         })}
       </div>
     </motion.div>
