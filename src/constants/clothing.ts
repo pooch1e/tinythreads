@@ -1,4 +1,8 @@
-import type { ClothingType } from "../types";
+/**
+ * clothing — the clothing categories in display order and their per-category
+ * display config (names, icon path, sort order).
+ */
+import type { ClothingType } from "@/types";
 
 export const CLOTHING_TYPES: ClothingType[] = [
   "hat",

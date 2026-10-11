@@ -1,3 +1,6 @@
-import type { Patterns } from "../types";
+/**
+ * patterns — the selectable clothing patterns, in display order.
+ */
+import type { PatternName } from "@/types";
 
-export const PATTERNS: Patterns[] = ["spots", "stripes"];
+export const PATTERNS: PatternName[] = ["spots", "stripes"];

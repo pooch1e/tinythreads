@@ -1,3 +1,8 @@
+/**
+ * removeBg.worker — runs @imgly/background-removal off the main thread and
+ * replies with the cutout PNG as a transferred ArrayBuffer, tagged with the
+ * caller's requestId.
+ */
 import { removeBackground } from "@imgly/background-removal";
 
 self.onmessage = async (event) => {

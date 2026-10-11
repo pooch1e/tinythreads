@@ -1,9 +1,11 @@
-import type { ClothingItem, SavedLook } from '../types';
+/**
+ * metadata — localStorage persistence for clothing item metadata and saved
+ * looks. Pure functions, no React.
+ */
+import type { ClothingItem, ClothingType, SavedLook } from "@/types";
 
-const ITEMS_KEY = '@tinythreads/items';
-const LOOKS_KEY = '@tinythreads/looks';
-
-// ── Generic localStorage helpers ─────────────────────────────
+const ITEMS_KEY = "@tinythreads/items";
+const LOOKS_KEY = "@tinythreads/looks";
 
 function loadFromStorage<T>(key: string): T[] {
   try {
@@ -24,8 +26,6 @@ function removeFromStorage(key: string, id: string): void {
   localStorage.setItem(key, JSON.stringify(items));
 }
 
-// ── Items ─────────────────────────────────────────────────────
-
 export const loadItems = () => loadFromStorage<ClothingItem>(ITEMS_KEY);
 export const saveItems = (items: ClothingItem[]) =>
   localStorage.setItem(ITEMS_KEY, JSON.stringify(items));
@@ -39,10 +39,18 @@ export const updateItemInStorage = (
   saveItems(items);
 };
 
-// ── Looks ─────────────────────────────────────────────────────
-
 export const loadLooks = () => loadFromStorage<SavedLook>(LOOKS_KEY);
 export const saveLooks = (looks: SavedLook[]) =>
   localStorage.setItem(LOOKS_KEY, JSON.stringify(looks));
 export const addLookToStorage = (look: SavedLook) => addToStorage<SavedLook>(LOOKS_KEY, look);
 export const removeLookFromStorage = (id: string) => removeFromStorage(LOOKS_KEY, id);
+
+export function removeItemFromLooks(itemId: string): void {
+  const looks = loadLooks().map((look) => ({
+    ...look,
+    itemIds: Object.fromEntries(
+      Object.entries(look.itemIds).filter(([, id]) => id !== itemId),
+    ) as Partial<Record<ClothingType, string>>,
+  }));
+  saveLooks(looks);
+}

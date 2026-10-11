@@ -1,7 +1,12 @@
-import type { BabySize, ClothingColour, ClothingPattern } from '@/types';
-import SizePicker from '@/components/SizePicker';
-import ColourPicker from '@/components/ColourPicker';
-import { PatternPicker } from '@/components/PatternPicker';
+/**
+ * FilterBar — size, pattern and colour filters for the wardrobe, with a
+ * "clear filters" action shown while any filter is active.
+ */
+import type { BabySize, ClothingColour, ClothingPattern } from "@/types";
+import SizePicker from "@/components/SizePicker";
+import ColourPicker from "@/components/ColourPicker";
+import PatternPicker from "@/components/PatternPicker";
+import { FOCUS_RING } from "@/constants/styles";
 
 interface FilterBarProps {
   activeSize: BabySize | null;
@@ -11,6 +16,9 @@ interface FilterBarProps {
   onColourChange: (colour: ClothingColour | null) => void;
   onPatternChange: (pattern: ClothingPattern | null) => void;
 }
+
+const SECTION = "flex flex-col gap-2 px-4 py-2";
+const HEADING = "text-sm font-semibold text-fg-muted";
 
 export default function FilterBar({
   activeSize,
@@ -22,30 +30,34 @@ export default function FilterBar({
 }: FilterBarProps) {
   const hasActiveFilter = activeSize !== null || activeColour !== null || activePattern !== null;
 
+  const clearFilters = () => {
+    onSizeChange(null);
+    onColourChange(null);
+    onPatternChange(null);
+  };
+
   return (
-    <div className="border-b border-lavender-2 dark:border-border">
-      {/* Size row */}
-      <div className="flex flex-col gap-2 px-4 py-2 overflow-x-auto no-scrollbar">
-        <h2 className="text-sm font-semibold text-gray-400 dark:text-text-muted">Size</h2>
+    <div className="border-b border-border bg-surface">
+      <div className={SECTION}>
+        <h2 className={HEADING}>Size</h2>
         <SizePicker value={activeSize} onChange={onSizeChange} />
       </div>
 
-      {/* Pattern row */}
-      <div className="flex flex-col gap-2 px-4 py-2 overflow-x-auto no-scrollbar">
-        <h2 className="text-sm font-semibold text-gray-400 dark:text-text-muted">Pattern</h2>
+      <div className={SECTION}>
+        <h2 className={HEADING}>Pattern</h2>
         <PatternPicker value={activePattern} onChange={onPatternChange} />
       </div>
 
-      {/* Colour row */}
-      <div className="flex items-center gap-2 px-4 py-2 overflow-x-auto no-scrollbar">        <ColourPicker value={activeColour} onChange={onColourChange} swatchSize="w-6 h-6" />
+      <div className={SECTION}>
+        <h2 className={HEADING}>Colour</h2>
+        <ColourPicker value={activeColour} onChange={onColourChange} compact />
       </div>
 
-      {/* Clear filters */}
       {hasActiveFilter && (
-        <div className="flex justify-end px-4 pb-2">
+        <div className="flex justify-end px-2">
           <button
-            onClick={() => { onSizeChange(null); onColourChange(null); onPatternChange(null); }}
-            className="text-xs text-[#abc4ff] font-medium active:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#abc4ff]/50 rounded"
+            onClick={clearFilters}
+            className={`min-h-11 px-2 text-xs text-primary-text font-medium active:opacity-60 rounded ${FOCUS_RING}`}
           >
             Clear filters ×
           </button>

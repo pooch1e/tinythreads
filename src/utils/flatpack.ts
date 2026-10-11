@@ -1,9 +1,14 @@
-import { loadImage, canvasToBlob } from "./canvasUtils";
+/**
+ * flatpack — normalises a background-removed cutout into a "flat-lay" photo:
+ * crops to the visible subject and centres it on a fixed-size white square.
+ */
+import { loadImage, canvasToBlob } from "@/utils/canvasUtils";
 
-const CANVAS_SIZE = 400;      // output square dimensions in px
-const SUBJECT_FILL = 0.82;    // subject occupies this fraction of the square
-const ALPHA_THRESHOLD = 10;   // pixels below this alpha are treated as transparent
-const BACKGROUND = "#ffffff"; // output background colour
+const CANVAS_SIZE = 400;
+const SUBJECT_FILL = 0.82; // fraction of the square the subject's longest side may occupy
+const ALPHA_THRESHOLD = 10; // pixels at or below this alpha count as background
+const BACKGROUND = "#ffffff";
+const JPEG_QUALITY = 0.9;
 
 type Bounds = { x: number; y: number; w: number; h: number };
 
@@ -66,7 +71,6 @@ export async function normaliseFlatpack(blob: Blob): Promise<Blob> {
   try {
     const img = await loadImage(url);
 
-    // Draw onto a scratch canvas to read pixel data
     const scratch = document.createElement("canvas");
     scratch.width = img.width;
     scratch.height = img.height;
@@ -74,10 +78,7 @@ export async function normaliseFlatpack(blob: Blob): Promise<Blob> {
     if (!scratchCtx) throw new Error("Canvas context unavailable");
     scratchCtx.drawImage(img, 0, 0);
 
-    const bounds = getContentBounds(scratchCtx, img.width, img.height);
-
-    // If no content found, fall back to a white square with the image centred
-    const safeBounds = bounds ?? {
+    const bounds = getContentBounds(scratchCtx, img.width, img.height) ?? {
       x: 0,
       y: 0,
       w: img.width,
@@ -87,9 +88,10 @@ export async function normaliseFlatpack(blob: Blob): Promise<Blob> {
     const output = document.createElement("canvas");
     output.width = CANVAS_SIZE;
     output.height = CANVAS_SIZE;
-    drawCentred(img, safeBounds, output);
+    drawCentred(img, bounds, output);
 
-    return canvasToBlob(output, "image/png");
+    // The white background makes the output opaque, so JPEG is far smaller than PNG.
+    return await canvasToBlob(output, "image/jpeg", JPEG_QUALITY);
   } finally {
     URL.revokeObjectURL(url);
   }

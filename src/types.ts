@@ -1,3 +1,8 @@
+/**
+ * types — shared domain types for clothing items, their attributes, and saved
+ * outfits ("looks").
+ */
+
 export type ClothingType = "hat" | "outer" | "top" | "bottoms" | "shoes";
 
 export type BabySize =
@@ -9,31 +14,32 @@ export type BabySize =
   | "18-24m"
   | "2-3y"
   | "3-4y";
+
 export interface ClothingColour {
   name: string;
   hex: string;
 }
 
-export type Patterns = "stripes" | "spots";
+export type PatternName = "stripes" | "spots";
 
 export interface ClothingPattern {
-  name: string;
+  name: PatternName;
 }
 
 export interface ClothingItem {
   id: string;
   type: ClothingType;
-  imageId: string; // IndexedDB key for the image blob
+  imageId: string;
   size?: BabySize;
   colour?: ClothingColour;
   pattern?: ClothingPattern;
-  createdAt: number; // Unix timestamp ms
+  createdAt: number;
   processing?: boolean;
 }
 
 export interface SavedLook {
   id: string;
   name: string;
-  itemIds: Partial<Record<ClothingType, string>>; // type → ClothingItem.id
+  itemIds: Partial<Record<ClothingType, string>>;
   createdAt: number;
 }

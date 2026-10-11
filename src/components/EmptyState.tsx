@@ -1,3 +1,9 @@
+/**
+ * EmptyState — centred placeholder shown when a page has nothing to display,
+ * with an optional call-to-action button.
+ */
+import { PRIMARY_BUTTON } from "@/constants/styles";
+
 interface EmptyStateProps {
   icon: string;
   title: string;
@@ -15,13 +21,13 @@ export default function EmptyState({
 }: EmptyStateProps) {
   return (
     <div className="flex flex-col items-center justify-center h-full gap-4 text-center px-6 pb-16">
-      <span className="text-6xl">{icon}</span>
-      <h2 className="text-lg font-semibold text-gray-700 dark:text-[#d7e3fc]">{title}</h2>
-      <p className="text-sm text-gray-400 dark:text-[#7a90c0] max-w-xs">{description}</p>
+      <span className="text-6xl" aria-hidden="true">{icon}</span>
+      <h2 className="text-lg font-semibold text-fg">{title}</h2>
+      <p className="text-sm text-fg-muted max-w-xs">{description}</p>
       {actionLabel && onAction && (
         <button
           onClick={onAction}
-          className="mt-2 px-6 py-3 bg-[#abc4ff] text-white rounded-2xl font-semibold text-sm shadow-sm active:bg-[#92aaee] active:scale-95 transition-[colors,transform] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#abc4ff]/50"
+          className={`mt-2 px-6 py-3 rounded-2xl font-semibold text-sm ${PRIMARY_BUTTON}`}
         >
           {actionLabel}
         </button>

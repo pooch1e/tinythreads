@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
-import { getImageUrl } from '@/storage/images';
-
 /**
- * Loads a single image from IndexedDB as an object URL.
- * Revokes the URL on unmount to avoid memory leaks.
+ * useSingleImage — loads one image from IndexedDB as an object URL and revokes
+ * it on change or unmount. Bump `version` to reload when the blob behind an
+ * unchanged imageId has been replaced.
  */
+import { useEffect, useState } from "react";
+import { getImageUrl } from "@/storage/images";
+
 export function useSingleImage(imageId: string | undefined, version?: string): string | null {
   const [url, setUrl] = useState<string | null>(null);
 

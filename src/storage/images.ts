@@ -1,8 +1,12 @@
-import { openDB, type IDBPDatabase } from 'idb';
+/**
+ * images — IndexedDB persistence for clothing photos, stored as Blobs keyed by
+ * ClothingItem.imageId. Pure functions, no React.
+ */
+import { openDB, type IDBPDatabase } from "idb";
 
-const DB_NAME = 'tinythreads';
+const DB_NAME = "tinythreads";
 const DB_VERSION = 1;
-const STORE_NAME = 'images';
+const STORE_NAME = "images";
 
 type TinyThreadsDB = {
   images: {

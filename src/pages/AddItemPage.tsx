@@ -1,16 +1,34 @@
+/**
+ * AddItemPage — /wardrobe/add. Pick a category (required) plus optional size,
+ * pattern and colour, then take or choose a photo to add the item.
+ */
 import { useNavigate } from "react-router-dom";
-import { useRef, useState } from "react";
+import { useRef, useState, type ChangeEvent } from "react";
 import { useWardrobe } from "@/hooks/useWardrobe";
 import { CLOTHING_TYPES, CLOTHING_CONFIG } from "@/constants/clothing";
+import {
+  DISABLED_BUTTON,
+  FOCUS_RING,
+  PRIMARY_BUTTON,
+  TOGGLE,
+  TOGGLE_ACTIVE,
+  TOGGLE_INACTIVE,
+} from "@/constants/styles";
 import type {
   ClothingType,
   BabySize,
   ClothingColour,
   ClothingPattern,
 } from "@/types";
+import PageHeader from "@/components/PageHeader";
+import CategoryIcon from "@/components/CategoryIcon";
 import SizePicker from "@/components/SizePicker";
 import ColourPicker from "@/components/ColourPicker";
-import { PatternPicker } from "@/components/PatternPicker";
+import PatternPicker from "@/components/PatternPicker";
+
+const SECTION_HEADING = "text-sm font-semibold text-fg-secondary uppercase tracking-wide mb-3";
+const OPTIONAL_LABEL = "text-fg-muted font-normal normal-case";
+const PHOTO_BUTTON = "py-4 rounded-2xl font-semibold text-base border-2 flex items-center justify-center gap-2";
 
 export default function AddItemPage() {
   const navigate = useNavigate();
@@ -20,24 +38,18 @@ export default function AddItemPage() {
 
   const [selectedType, setSelectedType] = useState<ClothingType | null>(null);
   const [selectedSize, setSelectedSize] = useState<BabySize | null>(null);
-  const [selectedPattern, setSelectedPattern] =
-    useState<ClothingPattern | null>(null);
-  const [selectedColour, setSelectedColour] = useState<ClothingColour | null>(
-    null,
-  );
+  const [selectedPattern, setSelectedPattern] = useState<ClothingPattern | null>(null);
+  const [selectedColour, setSelectedColour] = useState<ClothingColour | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const handleCameraClick = () => {
+  const canPickPhoto = selectedType !== null && !isAdding;
+
+  const openPicker = (input: HTMLInputElement | null) => {
     setError(null);
-    cameraInputRef.current?.click();
+    input?.click();
   };
 
-  const handleGalleryClick = () => {
-    setError(null);
-    galleryInputRef.current?.click();
-  };
-
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !selectedType) return;
 
@@ -59,29 +71,26 @@ export default function AddItemPage() {
 
   return (
     <div className="flex flex-col h-full">
-      {/* Header */}
-      <div className="flex items-center gap-3 px-4 py-4 border-b border-lavender-2 dark:border-border">
-        <button
-          onClick={() => navigate(-1)}
-          className="text-gray-500 dark:text-[#b6ccfe] text-2xl leading-none w-10 h-10 flex items-center justify-center rounded-full active:bg-[#edf2fb] dark:active:bg-[#1a2332] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#abc4ff]/50"
-          aria-label="Back"
-        >
-          ‹
-        </button>
-        <h1 className="text-lg font-semibold text-gray-800 dark:text-[#edf2fb]">
-          Add clothing item
-        </h1>
-      </div>
-      {/* Scrollable form */}
+      <PageHeader
+        title="Add item"
+        leading={
+          <button
+            onClick={() => navigate(-1)}
+            className={`text-fg-secondary text-2xl leading-none w-11 h-11 flex items-center justify-center rounded-full active:bg-surface-muted transition-colors ${FOCUS_RING}`}
+            aria-label="Back"
+          >
+            ‹
+          </button>
+        }
+      />
+
       <div className="flex-1 overflow-y-auto px-4 py-5 space-y-7">
-        {/* Category */}
         <section>
-          <h2 className="text-sm font-semibold text-gray-500 dark:text-[#b6ccfe] uppercase tracking-wide mb-3">
-            Category <span className="text-[#abc4ff]">*</span>
+          <h2 className={SECTION_HEADING}>
+            Category <span className="text-primary-text">*</span>
           </h2>
           <div className="grid grid-cols-2 gap-3">
             {CLOTHING_TYPES.map((type) => {
-              const cfg = CLOTHING_CONFIG[type];
               const active = selectedType === type;
               return (
                 <button
@@ -90,114 +99,85 @@ export default function AddItemPage() {
                     setSelectedType(type);
                     setError(null);
                   }}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-2xl border-2 transition-[colors,transform] duration-150 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#abc4ff]/50 ${
-                    active
-                      ? "border-[#abc4ff] bg-[#edf2fb] text-[#3b5bdb] dark:bg-[#1a2442] dark:text-[#abc4ff] dark:border-[#abc4ff]"
-                      : "border-periwinkle dark:border-border bg-white dark:bg-[#1a2332] text-gray-700 dark:text-[#b6ccfe]"
+                  aria-pressed={active}
+                  className={`flex items-center gap-3 px-4 py-3 rounded-2xl border-2 ${TOGGLE} ${
+                    active ? TOGGLE_ACTIVE : TOGGLE_INACTIVE
                   }`}
                 >
-                  {cfg.icon.startsWith("/") || cfg.icon.startsWith("http") ? (
-                    <img
-                      src={cfg.icon}
-                      alt={cfg.displayName}
-                      className="w-12 h-12 object-contain"
-                    />
-                  ) : (
-                    <span className="text-3xl">{cfg.icon}</span>
-                  )}
-                  <span className="font-medium text-sm">{cfg.displayName}</span>
+                  <CategoryIcon type={type} className="w-12 h-12" />
+                  <span className="font-medium text-sm">{CLOTHING_CONFIG[type].displayName}</span>
                 </button>
               );
             })}
           </div>
         </section>
 
-        {/* Size */}
         <section>
-          <h2 className="text-sm font-semibold text-gray-500 dark:text-[#b6ccfe] uppercase tracking-wide mb-3">
-            Size{" "}
-            <span className="text-gray-400 dark:text-text-muted font-normal normal-case">
-              (optional)
-            </span>
+          <h2 className={SECTION_HEADING}>
+            Size <span className={OPTIONAL_LABEL}>(optional)</span>
           </h2>
           <SizePicker value={selectedSize} onChange={setSelectedSize} />
         </section>
 
-        {/* Pattern */}
         <section>
-          <h2 className="text-sm font-semibold text-gray-500 dark:text-[#b6ccfe] uppercase tracking-wide mb-3">
-            Pattern{" "}
-            <span className="text-gray-400 dark:text-text-muted font-normal normal-case">
-              (optional)
-            </span>
+          <h2 className={SECTION_HEADING}>
+            Pattern <span className={OPTIONAL_LABEL}>(optional)</span>
           </h2>
-          <PatternPicker
-            value={selectedPattern}
-            onChange={setSelectedPattern}
-          />
+          <PatternPicker value={selectedPattern} onChange={setSelectedPattern} />
         </section>
 
-        {/* Colour */}
         <section>
-          <h2 className="text-sm font-semibold text-gray-500 dark:text-[#b6ccfe] uppercase tracking-wide mb-3">
-            Colour{" "}
-            <span className="text-gray-400 dark:text-text-muted font-normal normal-case">
-              (optional)
-            </span>
+          <h2 className={SECTION_HEADING}>
+            Colour <span className={OPTIONAL_LABEL}>(optional)</span>
           </h2>
           <ColourPicker value={selectedColour} onChange={setSelectedColour} />
           {selectedColour && (
-            <p className="mt-2 text-sm text-gray-500 dark:text-text-muted">
-              Selected:{" "}
-              <span className="font-medium text-gray-700 dark:text-lavender-2">
-                {selectedColour.name}
-              </span>
+            <p className="mt-2 text-sm text-fg-muted">
+              Selected: <span className="font-medium text-fg">{selectedColour.name}</span>
             </p>
           )}
         </section>
 
-        {/* Error */}
         {error && (
-          <p className="text-sm text-red-500 bg-red-50 dark:bg-red-950 px-4 py-3 rounded-xl">
+          <p role="alert" className="text-sm text-error-text bg-error-surface px-4 py-3 rounded-xl">
             {error}
           </p>
         )}
       </div>
-      {/* Footer CTA */}
-      <div className="px-4 py-4 border-t border-lavender-2 dark:border-border space-y-2">
+
+      <div className="px-4 py-4 border-t border-border space-y-2">
         {!selectedType && (
-          <p className="text-center text-xs font-semibold text-gray-400 dark:text-[#7a90c0] uppercase tracking-wider">
+          <p className="text-center text-xs font-semibold text-fg-muted uppercase tracking-wider">
             Select a category to continue
           </p>
         )}
         <div className="grid grid-cols-2 gap-3">
           <button
-            onClick={handleCameraClick}
-            disabled={isAdding || !selectedType}
-            className={`py-4 rounded-2xl font-semibold text-base transition-[colors,opacity,transform] duration-200 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#abc4ff]/50 flex items-center justify-center gap-2 ${
-              !selectedType || isAdding
-                ? "bg-[#edf2fb] dark:bg-[#1a2332] text-gray-300 dark:text-[#3a4a6a] cursor-not-allowed opacity-50"
-                : "bg-[#abc4ff] text-white shadow-sm active:bg-[#92aaee]"
+            onClick={() => openPicker(cameraInputRef.current)}
+            disabled={!canPickPhoto}
+            className={`${PHOTO_BUTTON} ${
+              canPickPhoto ? `border-transparent ${PRIMARY_BUTTON}` : `border-transparent ${DISABLED_BUTTON}`
             }`}
           >
-            <span>📷</span>
+            <span aria-hidden="true">📷</span>
             <span>{isAdding ? "Wait..." : "Camera"}</span>
           </button>
           <button
-            onClick={handleGalleryClick}
-            disabled={isAdding || !selectedType}
-            className={`py-4 rounded-2xl font-semibold text-base transition-[colors,opacity,transform] duration-200 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#abc4ff]/50 flex items-center justify-center gap-2 ${
-              !selectedType || isAdding
-                ? "bg-[#edf2fb] dark:bg-[#1a2332] text-gray-300 dark:text-[#3a4a6a] cursor-not-allowed opacity-50 border-2 border-[#d7e3fc] dark:border-[#1a2332]"
-                : "bg-white border-2 border-[#abc4ff] text-[#abc4ff] shadow-sm active:bg-[#f8faff]"
+            onClick={() => openPicker(galleryInputRef.current)}
+            disabled={!canPickPhoto}
+            className={`${PHOTO_BUTTON} ${
+              canPickPhoto
+                ? `bg-surface border-primary text-primary-text shadow-sm active:bg-bg active:scale-95 transition-[colors,transform] duration-150 ${FOCUS_RING}`
+                : `border-border ${DISABLED_BUTTON}`
             }`}
           >
-            <span>🖼️</span>
+            <span aria-hidden="true">🖼️</span>
             <span>{isAdding ? "Wait..." : "Gallery"}</span>
           </button>
         </div>
       </div>
-      {/* Hidden file inputs - must NOT use display:none on iOS */}
+
+      {/* Hidden via opacity rather than display:none, which stops iOS opening the picker. */}
       <input
         ref={cameraInputRef}
         type="file"

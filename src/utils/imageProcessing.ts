@@ -1,10 +1,13 @@
-import { removeBgAsync } from "./removeBg";
-import { loadImage, canvasToBlob } from "./canvasUtils";
-import { normaliseFlatpack } from "./flatpack";
+/**
+ * imageProcessing — the photo pipeline: downscale an upload to a compact JPEG,
+ * then (in the background) cut out the subject and centre it on a white square.
+ */
+import { removeBgAsync } from "@/utils/removeBg";
+import { loadImage, canvasToBlob } from "@/utils/canvasUtils";
+import { normaliseFlatpack } from "@/utils/flatpack";
 
-const FINAL_MAX_WIDTH = 800;
-const WORKER_MAX_WIDTH = 600;
-const WORKER_JPEG_QUALITY = 0.85;
+const UPLOAD_MAX_WIDTH = 600;
+const UPLOAD_JPEG_QUALITY = 0.85;
 
 async function resizeImage(
   source: File | Blob,
@@ -32,29 +35,25 @@ async function resizeImage(
 
     ctx.drawImage(img, 0, 0, width, height);
 
-    const blob = await canvasToBlob(canvas, type, quality);
-    return blob;
+    return await canvasToBlob(canvas, type, quality);
   } finally {
     URL.revokeObjectURL(url);
   }
 }
 
 export function prepareUploadedImage(file: File | Blob): Promise<Blob> {
-  return resizeImage(file, WORKER_MAX_WIDTH, "image/jpeg", WORKER_JPEG_QUALITY);
+  return resizeImage(file, UPLOAD_MAX_WIDTH, "image/jpeg", UPLOAD_JPEG_QUALITY);
 }
 
-export async function removeImageBackground(file: File | Blob): Promise<Blob> {
+/**
+ * Takes the output of prepareUploadedImage. If background removal fails, the
+ * prepared image is returned unchanged so the item still has a usable photo.
+ */
+export async function removeImageBackground(prepared: Blob): Promise<Blob> {
   try {
-    const compressed = await resizeImage(
-      file,
-      WORKER_MAX_WIDTH,
-      "image/jpeg",
-      WORKER_JPEG_QUALITY,
-    );
-    const processed = await removeBgAsync(compressed);
-    const normalised = await normaliseFlatpack(processed);
-    return await resizeImage(normalised, FINAL_MAX_WIDTH, "image/png");
+    const cutout = await removeBgAsync(prepared);
+    return await normaliseFlatpack(cutout);
   } catch {
-    return await resizeImage(file, FINAL_MAX_WIDTH, "image/png");
+    return prepared;
   }
 }

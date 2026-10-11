@@ -85,7 +85,7 @@ TinyThreads is a **mobile-first progressive web app (PWA)** — a baby clothing 
 | Animation | `framer-motion` |
 | Image storage | IndexedDB via `idb` |
 | Metadata storage | `localStorage` |
-| Image processing | Browser Canvas API |
+| Image processing | Browser Canvas API + `@imgly/background-removal` in a web worker |
 | PWA | `vite-plugin-pwa` (Workbox, `generateSW` mode) |
 
 ---
@@ -94,31 +94,47 @@ TinyThreads is a **mobile-first progressive web app (PWA)** — a baby clothing 
 
 ```
 src/
-  types.ts                  — ClothingItem, SavedLook, ClothingType, BabySize, ClothingColour, MAX_LOOKS
+  types.ts                  — ClothingType, BabySize, ClothingColour, PatternName, ClothingPattern, ClothingItem, SavedLook
   constants/
     clothing.ts             — CLOTHING_TYPES array, CLOTHING_CONFIG map (icon, displayName, pluralName, order)
     colours.ts              — COLOUR_PALETTE (14 ClothingColour objects)
+    patterns.ts             — PATTERNS array
     sizes.ts                — BABY_SIZES array
+    limits.ts               — MAX_LOOKS (50)
+    styles.ts               — shared Tailwind class strings (buttons, toggles, focus ring)
   storage/
     metadata.ts             — localStorage CRUD for ClothingItem[] and SavedLook[]
     images.ts               — IndexedDB CRUD for image Blobs (keyed by UUID string)
   utils/
-    imageProcessing.ts      — Canvas API: resize to max 1024px wide, encode JPEG quality 0.7
+    imageProcessing.ts      — prepareUploadedImage (600px JPEG) + removeImageBackground
+    removeBg.ts             — client for the background-removal web worker
+    flatpack.ts             — crop cutout to subject, centre on 400px white square (JPEG)
+    canvasUtils.ts          — loadImage / canvasToBlob promise helpers
+    clothing.ts             — groupItemsByType, formatItemCount
+    wardrobeEvents.ts       — window event that keeps useWardrobe instances in sync
+  workers/
+    removeBg.worker.ts      — runs @imgly/background-removal off the main thread
   hooks/
-    useWardrobe.ts          — items state, addItem(file, type, size?, colour?), deleteItem(id), refresh()
+    useWardrobe.ts          — items state, addItem(file, type, size?, pattern?, colour?), deleteItem(id), refresh()
     useLooks.ts             — looks state, addLook(name, itemIds), deleteLook(id), refresh(), atLimit
-  components/               — shared reusable UI components
+    useItemImages.ts        — object URLs for a list of items
+    useSingleImage.ts       — object URL for one image
+    useEscapeToClose.ts     — Escape closes the top-most open sheet
+  components/               — shared reusable UI components (BottomSheet, PageHeader, CategoryIcon, …)
   pages/
-    WardrobePage.tsx        — /wardrobe — browse items by category
+    WardrobePage.tsx        — /wardrobe — category folders, filters, item sheet
+    AddItemPage.tsx         — /wardrobe/add — add an item with photo
     BuildOutfitPage.tsx     — /build — swipe to compose outfit
     OutfitsPage.tsx         — /outfits — view saved outfits
   App.tsx                   — shell layout + bottom nav (3 tabs)
   main.tsx                  — React root + router
-  index.css                 — Tailwind import + mobile shell styles
+  index.css                 — Tailwind import, semantic colour tokens, mobile shell styles
 public/
-  icons/                    — PWA icons (icon-192.png, icon-512.png needed)
+  icons/                    — PWA icons (icon-192.png, icon-512.png)
+  assets/icons/items/colour — category icons (144px PNG)
 index.html                  — entry point, viewport meta, PWA meta tags
 vite.config.ts              — Vite config (React plugin, Tailwind plugin, PWA plugin, path alias @/)
+eslint.config.js            — flat ESLint config
 ```
 
 ---
@@ -130,7 +146,8 @@ vite.config.ts              — Vite config (React plugin, Tailwind plugin, PWA 
 - **Storage layer is pure functions** — no React in `storage/` or `utils/`
 - **No React Native** — use standard HTML elements (`div`, `button`, `img`, `input`) and CSS
 - **No class components** — functional components and hooks only
-- **Path alias** — use `@/` to import from `src/` (e.g. `import { CLOTHING_TYPES } from '@/constants/clothing'`)
+- **Path alias** — use `@/` to import from `src/` (e.g. `import { CLOTHING_TYPES } from "@/constants/clothing"`)
+- **Code style** — double quotes; default-export one component per file; `import type` for type-only imports
 
 ---
 
@@ -139,11 +156,14 @@ vite.config.ts              — Vite config (React plugin, Tailwind plugin, PWA 
 ```ts
 // src/types.ts
 
-type ClothingType = 'hat' | 'top' | 'trousers' | 'shoes';
+type ClothingType = "hat" | "outer" | "top" | "bottoms" | "shoes";
 
-type BabySize = '0-3m' | '3-6m' | '6-9m' | '9-12m' | '12-18m' | '18-24m' | '2-3y' | '3-4y';
+type BabySize = "0-3m" | "3-6m" | "6-9m" | "9-12m" | "12-18m" | "18-24m" | "2-3y" | "3-4y";
 
 interface ClothingColour { name: string; hex: string; }
+
+type PatternName = "stripes" | "spots";
+interface ClothingPattern { name: PatternName; }
 
 interface ClothingItem {
   id: string;           // UUID — also the IndexedDB image key (imageId)
@@ -151,7 +171,9 @@ interface ClothingItem {
   imageId: string;      // Key into IndexedDB images store
   size?: BabySize;
   colour?: ClothingColour;
+  pattern?: ClothingPattern;
   createdAt: number;    // Unix ms
+  processing?: boolean; // true while background removal is running
 }
 
 interface SavedLook {
@@ -161,7 +183,8 @@ interface SavedLook {
   createdAt: number;
 }
 
-const MAX_LOOKS = 10;
+// src/constants/limits.ts
+const MAX_LOOKS = 50;
 ```
 
 ---
@@ -184,12 +207,14 @@ Image URLs for rendering are created with `URL.createObjectURL(blob)` — these 
 
 ---
 
-## Image Pipeline (US-1)
+## Image Pipeline
 
-1. User selects file via `<input type="file" accept="image/*" capture="environment">`
-2. `processImage(file)` in `utils/imageProcessing.ts` → resizes to max 1024px wide, encodes as JPEG 0.7 → returns `Blob`
-3. `saveImage(id, blob)` in `storage/images.ts` → persists to IndexedDB
-4. `addItemToStorage(item)` in `storage/metadata.ts` → persists metadata to localStorage
+1. User selects file via `<input type="file" accept="image/*">` (camera input adds `capture="environment"`)
+2. `prepareUploadedImage(file)` → resizes to max 600px wide, JPEG 0.85 → saved immediately with `processing: true`
+3. In the background, `removeImageBackground(prepared)` sends it to the web worker (`@imgly/background-removal`), then `normaliseFlatpack` centres the cutout on a 400px white square (JPEG)
+4. The result overwrites the image in IndexedDB and `processing` is cleared. On failure the prepared JPEG is kept
+5. Items left `processing` by a reload are resumed when `useWardrobe` next mounts
+6. Deleting an item also removes it from any saved looks
 
 ---
 
@@ -200,6 +225,7 @@ Image URLs for rendering are created with `URL.createObjectURL(blob)` — these 
 | Path | Page | Tab label |
 |---|---|---|
 | `/wardrobe` | `WardrobePage` | Wardrobe 👗 |
+| `/wardrobe/add` | `AddItemPage` | (no tab) |
 | `/build` | `BuildOutfitPage` | Build ✨ |
 | `/outfits` | `OutfitsPage` | Outfits 📸 |
 
@@ -210,10 +236,14 @@ Root `/` redirects to `/wardrobe`.
 ## Styling Conventions
 
 - Tailwind utility classes for all component styling
-- Mobile shell is fixed: `max-width: 430px`, centred, `height: 100dvh`, with a fixed bottom nav
+- Use the semantic colour tokens from `index.css` (`bg-surface`, `text-fg-muted`, `border-border`, `bg-primary`, …) — not hard-coded hex. Tokens switch automatically in dark mode, so `dark:` variants are rarely needed
+- Dark-mode token overrides live in a plain `:root` block inside `@media (prefers-color-scheme: dark)` — never nest `@theme` in a media query (Tailwind v4 hoists it)
+- Shared button/toggle classes live in `constants/styles.ts`
+- Mobile shell is fixed: `max-width: 430px`, centred, `height: 100dvh`, with a fixed bottom nav. Overlays should also cap at 430px
 - `app-content` div is the scrollable area (`flex: 1; overflow-y: auto`)
-- Colour palette: pink accent `#ec4899` (active tab, primary buttons), greys for inactive states
+- Accent colour: baby blue `#abc4ff` (`--color-primary`) with dark navy text on top (`text-on-primary`)
 - Touch targets minimum 44×44px (WCAG mobile guideline)
+- Text inputs must be at least 16px (`text-base`) so iOS doesn't zoom on focus
 
 ---
 
@@ -223,18 +253,17 @@ Root `/` redirects to `/wardrobe`.
 npm run dev       # start dev server at http://localhost:5173
 npm run build     # production build → dist/
 npm run preview   # preview production build locally
+npm run lint      # ESLint
 ```
 
 ---
 
 ## MVP Scope (do not exceed without instruction)
 
-The MVP covers **US-1 through US-5** only. Do not implement:
-- Background removal (no ONNX, no ML)
+The MVP covers **US-1 through US-5**. Since then, **background removal** and **dark mode** have been implemented. Do not implement without instruction:
 - Multi-photo per item
 - Edit item after saving
 - Notes/label fields
 - Export/import
-- Dark mode
 
 See `EPIC.md` for the full epic, user stories, acceptance criteria, and task checklist.

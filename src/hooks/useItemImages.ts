@@ -1,14 +1,20 @@
-import { useState, useEffect } from 'react';
-import type { ClothingItem } from '@/types';
-import { getImageUrl } from '@/storage/images';
-
 /**
- * Loads IndexedDB object URLs for a list of clothing items.
- * Returns a Map of imageId → objectUrl.
- * Revokes all object URLs when the items list changes or the component unmounts.
+ * useItemImages — loads IndexedDB object URLs for a list of clothing items as
+ * a Map of imageId → objectUrl, revoking them when the list changes or the
+ * component unmounts.
  */
+import { useState, useEffect } from "react";
+import type { ClothingItem } from "@/types";
+import { getImageUrl } from "@/storage/images";
+
 export function useItemImages(items: ClothingItem[]): Map<string, string> {
   const [imageMap, setImageMap] = useState<Map<string, string>>(new Map());
+
+  // Background removal overwrites the blob under the same imageId, so the
+  // processing flag is part of the key to pick up the finished image.
+  const itemsKey = items
+    .map((i) => `${i.imageId}:${i.processing ? "processing" : "ready"}`)
+    .join(",");
 
   useEffect(() => {
     if (items.length === 0) {
@@ -41,9 +47,9 @@ export function useItemImages(items: ClothingItem[]): Map<string, string> {
       cancelled = true;
       created.forEach((url) => URL.revokeObjectURL(url));
     };
-  // Stringify ids so the effect only re-runs when the actual item list changes
+  // Keyed on a string so the effect only re-runs when the item images actually change.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [items.map((i) => i.imageId).join(',')]);
+  }, [itemsKey]);
 
   return imageMap;
 }
